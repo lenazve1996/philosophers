@@ -1,22 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libft_funcs.h                                      :+:      :+:    :+:   */
+/*   ft_isdigit_orsign.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/02/19 17:58:04 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/02/20 18:08:04 by ayajirob@st      ###   ########.fr       */
+/*   Created: 2022/02/20 18:06:25 by ayajirob@st       #+#    #+#             */
+/*   Updated: 2022/02/20 18:06:27 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_FUNCS_H
-# define LIBFT_FUNCS_H
+#include "libft_funcs.h"
 
-# include <stddef.h>
-
-size_t			ft_strlen(const char *s);
-long long int	ft_atoi(const char *str);
-int				ft_isdigit_orsign(int ch);
-
-#endif
+int	ft_isdigit_orsign(int ch)
+{
+	if ((ch >= '0' && ch <= '9') || ch == '-' || ch == '+' || ch == ' ')
+		return (1);
+	return (0);
+}

@@ -2,6 +2,9 @@
 # define PHILO_H
 
 # include <unistd.h>
+# include "./libft/libft_funcs.h"
+# include <stdio.h>
+# include <pthread.h>
 
 typedef struct	s_lst
 {
