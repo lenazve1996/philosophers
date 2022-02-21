@@ -1,6 +1,6 @@
 NAME		= philo
 BONUS		= philo_bonus
-CC			= cc
+CC			= gcc
 FLAGS		= -Wall -Wextra -Werror -fsanitize=address -g
 SRC			= libft/ft_atoi.c libft/ft_strlen.c libft/ft_isdigit_orsign.c philo.c
 #SRC_BONUS	= 

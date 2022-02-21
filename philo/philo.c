@@ -6,11 +6,17 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/02/20 18:50:17 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/02/21 19:36:16 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+pthread_mutex_t mutex[3];
+pthread_mutex_t sleeping;
+pthread_mutex_t eat;
+pthread_mutex_t forks;
+t_lst data;
 
 static int	ft_check_characters(char *str)
 {
@@ -48,7 +54,7 @@ int	ft_parser(int ac, char **av, t_lst *data)
 			return (1);
 		i++;
 	}
-	data->philo = ft_atoi(av[1]);
+	data->forks = ft_atoi(av[1]);
 	data->die_time = ft_atoi(av[2]); 
 	data->eat_time = ft_atoi(av[3]); 
 	data->sleep_time = ft_atoi(av[4]);
@@ -59,18 +65,117 @@ int	ft_parser(int ac, char **av, t_lst *data)
 	return (0);
 }
 
+void	ft_eat(int i)
+{
+	struct timeval	cur_time;
+	long int		timestamp;
+	
+	usleep(data.eat_time);
+	gettimeofday(&cur_time, NULL);
+	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.msec;
+	data.msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+	pthread_mutex_lock(&eat);
+	printf("%ld %d is eating\n", timestamp, i);
+	pthread_mutex_unlock(&eat);
+	return ;
+}
+
+void	ft_take_fork(int i)
+{
+	struct timeval	cur_time;
+	long int		timestamp;
+	
+	gettimeofday(&cur_time, NULL);
+	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.msec;
+	data.msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+	pthread_mutex_lock(&forks);
+	printf("%ld %d has taken a fork\n", timestamp, i);
+	pthread_mutex_unlock(&forks);
+	ft_eat(i);
+	return ;
+}
+
+void	ft_sleep(int i)
+{
+	struct timeval	cur_time;
+	long int		timestamp;
+	
+	usleep(data.sleep_time);
+	gettimeofday(&cur_time, NULL);
+	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.msec;
+	data.msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+	pthread_mutex_lock(&sleeping);
+	printf("%ld %d is sleeping\n", timestamp, i);
+	pthread_mutex_unlock(&sleeping);
+	return ;
+}
+void	*ft_actions(void *i)
+{
+	int index;
+
+	index = *(int *)i;
+	pthread_mutex_lock(mutex + index);
+	pthread_mutex_lock(mutex + index + 1);
+	ft_take_fork(*(int *)i + 1);
+	pthread_mutex_unlock(mutex + index);
+	pthread_mutex_unlock(mutex + index + 1);
+	ft_sleep(*(int *)i + 1);
+	return (NULL);
+}
+
+int	ft_create_threads(t_lst *data)
+{
+	int i;
+
+	i = 0;
+	while (i < data->forks)
+		pthread_mutex_init(&mutex[i], NULL);
+	pthread_mutex_init(&eat, NULL);
+	pthread_mutex_init(&sleeping, NULL);
+	pthread_mutex_init(&forks, NULL);
+	data->philos = (pthread_t *)malloc(sizeof(pthread_t) * data->forks);
+	i = 0;
+	while (i < data->forks)
+	{
+		if (pthread_create(&data->philos[i], NULL, &ft_actions, &i) != 0)
+			return (1);
+		i++;
+	}
+	i = 0;
+	while (i < data->forks)
+	{
+		if (pthread_join(data->philos[i], NULL) != 0)
+			return (1);
+		i++;
+	}
+	i = 0;
+	while (i < data->forks)
+		pthread_mutex_destroy(&mutex[i]);
+	pthread_mutex_destroy(&eat);
+	pthread_mutex_destroy(&sleeping);
+	pthread_mutex_destroy(&forks);
+	free(data->philos);
+	return (0);
+}
+
 
 int	main(int argc, char **argv)
 {
-	t_lst data;
+	struct timeval cur_time;
 	
 	if (argc < 5)
-		return (ft_putstr_ret("Error", 2));
+		return (ft_putstr_ret("Error\n", 2));
 	if (ft_parser(argc, argv, &data) == 1)
-		return (ft_putstr_ret("Error", 2));
-	printf("%d\n", data.philo);
+		return (ft_putstr_ret("Error\n", 2));
+	gettimeofday(&cur_time, NULL);
+	data.msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+	printf("seconds : %ld microseconds : %d\n", cur_time.tv_sec, cur_time.tv_usec);
+	printf("%lld\n", data.msec);
+	printf("%d\n", data.forks);
 	printf("%d\n", data.die_time);
 	printf("%d\n", data.eat_time);
 	printf("%d\n", data.sleep_time);
 	printf("%d\n", data.must_eat);
+	if (ft_create_threads(&data) == 1)
+		return (ft_putstr_ret("Error\n", 2));
 }

@@ -5,10 +5,17 @@
 # include "./libft/libft_funcs.h"
 # include <stdio.h>
 # include <pthread.h>
+# include <stdlib.h>
+# include <sys/time.h> 
 
 typedef struct	s_lst
 {
-	int	philo;
+	int	forks;
+	int	*f;
+	pthread_t *philos;
+	pthread_mutex_t mut;
+	long int	sec;
+	long long	msec;
 	int	die_time;
 	int	eat_time;
 	int sleep_time;
