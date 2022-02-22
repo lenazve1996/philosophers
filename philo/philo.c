@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/02/21 19:36:16 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/02/22 19:13:45 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ pthread_mutex_t mutex[3];
 pthread_mutex_t sleeping;
 pthread_mutex_t eat;
 pthread_mutex_t forks;
+pthread_mutex_t t;
 t_lst data;
 
 static int	ft_check_characters(char *str)
@@ -70,13 +71,15 @@ void	ft_eat(int i)
 	struct timeval	cur_time;
 	long int		timestamp;
 	
-	usleep(data.eat_time);
+	pthread_mutex_lock(&t);
 	gettimeofday(&cur_time, NULL);
 	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.msec;
 	data.msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+	pthread_mutex_unlock(&t);
 	pthread_mutex_lock(&eat);
 	printf("%ld %d is eating\n", timestamp, i);
 	pthread_mutex_unlock(&eat);
+	usleep(data.eat_time);
 	return ;
 }
 
@@ -85,11 +88,14 @@ void	ft_take_fork(int i)
 	struct timeval	cur_time;
 	long int		timestamp;
 	
+	pthread_mutex_lock(&t);
 	gettimeofday(&cur_time, NULL);
 	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.msec;
 	data.msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+	pthread_mutex_unlock(&t);
 	pthread_mutex_lock(&forks);
-	printf("%ld %d has taken a fork\n", timestamp, i);
+	printf("%ld %d has taken a fork %d\n", timestamp, i, i);
+	printf("%ld %d has taken a fork %d\n", timestamp, i, i+1);
 	pthread_mutex_unlock(&forks);
 	ft_eat(i);
 	return ;
@@ -100,13 +106,15 @@ void	ft_sleep(int i)
 	struct timeval	cur_time;
 	long int		timestamp;
 	
-	usleep(data.sleep_time);
-	gettimeofday(&cur_time, NULL);
+	pthread_mutex_lock(&t);
 	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.msec;
 	data.msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+	pthread_mutex_unlock(&t);
+	gettimeofday(&cur_time, NULL);
 	pthread_mutex_lock(&sleeping);
 	printf("%ld %d is sleeping\n", timestamp, i);
 	pthread_mutex_unlock(&sleeping);
+	usleep(data.sleep_time);
 	return ;
 }
 void	*ft_actions(void *i)
@@ -114,11 +122,11 @@ void	*ft_actions(void *i)
 	int index;
 
 	index = *(int *)i;
-	pthread_mutex_lock(mutex + index);
-	pthread_mutex_lock(mutex + index + 1);
+	pthread_mutex_lock(&mutex[index]);
+	pthread_mutex_lock(&mutex[index + 1]);
 	ft_take_fork(*(int *)i + 1);
-	pthread_mutex_unlock(mutex + index);
-	pthread_mutex_unlock(mutex + index + 1);
+	pthread_mutex_unlock(&mutex[index]);
+	pthread_mutex_unlock(&mutex[index + 1]);
 	ft_sleep(*(int *)i + 1);
 	return (NULL);
 }
@@ -129,7 +137,7 @@ int	ft_create_threads(t_lst *data)
 
 	i = 0;
 	while (i < data->forks)
-		pthread_mutex_init(&mutex[i], NULL);
+		pthread_mutex_init(&mutex[i++], NULL);
 	pthread_mutex_init(&eat, NULL);
 	pthread_mutex_init(&sleeping, NULL);
 	pthread_mutex_init(&forks, NULL);
@@ -150,7 +158,7 @@ int	ft_create_threads(t_lst *data)
 	}
 	i = 0;
 	while (i < data->forks)
-		pthread_mutex_destroy(&mutex[i]);
+		pthread_mutex_destroy(&mutex[i++]);
 	pthread_mutex_destroy(&eat);
 	pthread_mutex_destroy(&sleeping);
 	pthread_mutex_destroy(&forks);
