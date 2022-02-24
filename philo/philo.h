@@ -10,17 +10,14 @@
 
 typedef struct	s_lst
 {
-	int	forks;
-	int	*f;
-	pthread_t *philos;
-	pthread_mutex_t mut;
-	long int	sec;
-	long long	msec;
-	int	die_time;
-	int	eat_time;
-	int sleep_time;
-	int	must_eat;
-
+	int				forks;
+	pthread_t		*philos;
+	pthread_mutex_t	mut;
+	long long		start_msec;
+	int				die_time;
+	int				eat_time;
+	int 			sleep_time;
+	int				must_eat;
 }				t_lst;
 
 size_t	ft_strlen(const char *s);
