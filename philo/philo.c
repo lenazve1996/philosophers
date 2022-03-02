@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/02/24 19:39:18 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/02 19:44:20 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,13 +66,7 @@ int	ft_parser(int ac, char **av, t_lst *data)
 
 void	ft_eat(int i)
 {
-	struct timeval		cur_time;
-	unsigned long long	timestamp;
-	
-	gettimeofday(&cur_time, NULL);
-	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.start_msec; 
-	pthread_mutex_lock(&message);
-	printf("%llu %d is eating\n", timestamp, i + 1);
+	printf("%lld %d is eating\n", data.timestamp[i], i + 1);
 	pthread_mutex_unlock(&message);
 	usleep(data.eat_time);
 }
@@ -80,12 +74,11 @@ void	ft_eat(int i)
 void	ft_sleep(int i)
 {
 	struct timeval		cur_time;
-	unsigned long long	timestamp;
 	
 	gettimeofday(&cur_time, NULL);
-	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.start_msec; 
+	data.timestamp[i] = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.prev_msec[i]; 
 	pthread_mutex_lock(&message);
-	printf("%llu %d is sleeping\n", timestamp, i + 1);
+	printf("%lld %d is sleeping\n", data.timestamp[i], i + 1);
 	pthread_mutex_unlock(&message);
 	usleep(data.sleep_time);
 
@@ -93,59 +86,69 @@ void	ft_sleep(int i)
 void	*ft_actions(void *i)
 {
 	int					index;
+	int					cycles;
 	int					right_fork;
 	int					left_fork;
-	unsigned long long	timestamp;
 	struct timeval		cur_time;
 	
 	index = *(int *)i;
-	timestamp = 0;
 	left_fork = index;
 	if (index + 1 == data.forks)
 		right_fork = 0;
 	else 
 		right_fork = index + 1;
 	printf("here index %d\n", index);
-	pthread_mutex_lock(&take_forks);
-	pthread_mutex_lock(&mutex[index]);
-	pthread_mutex_lock(&mutex[index + 1]);
-	pthread_mutex_unlock(&take_forks);
-	//if (index == 0)
-	//	timestamp = 0;
-	//else
-	//{
-	gettimeofday(&cur_time, NULL);
-	timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.start_msec;
-	//}
-	pthread_mutex_lock(&message);
-	printf("%llu %d has taken a fork %d\n", timestamp, index + 1, index);
-	printf("%llu %d has taken a fork %d\n", timestamp, index + 1, index + 1);
-	printf("seconds : %ld microseconds : %d together: %ld\n", cur_time.tv_sec, cur_time.tv_usec, cur_time.tv_sec * 1000 + cur_time.tv_usec);
-	pthread_mutex_unlock(&message);
-	ft_eat(index);
-	pthread_mutex_unlock(&mutex[index]);
-	pthread_mutex_unlock(&mutex[index + 1]);
-	ft_sleep(index);
+	if (data.must_eat != 0)
+		cycles = data.must_eat;
+	else
+		cycles = 1;
+	while (cycles)
+	{
+		pthread_mutex_lock(&mutex[index]);
+		pthread_mutex_lock(&mutex[index + 1]);
+		gettimeofday(&cur_time, NULL);
+		if (data.timestamp[index] == 0 && data.prev_msec[index] == 0)
+		{
+			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+		}
+		else
+		{
+			data.timestamp[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.prev_msec[index];
+			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+		}
+		pthread_mutex_lock(&message);
+		printf("%lld %d has taken a fork %d\n", data.timestamp[index], index + 1, index);
+		printf("%lld %d has taken a fork %d\n", data.timestamp[index], index + 1, index + 1);
+		printf("seconds : %ld microseconds : %d together: %ld\n", cur_time.tv_sec, cur_time.tv_usec, cur_time.tv_sec * 1000 + cur_time.tv_usec);
+		pthread_mutex_unlock(&message);
+		ft_eat(index);
+		pthread_mutex_unlock(&mutex[index]);
+		pthread_mutex_unlock(&mutex[index + 1]);
+		ft_sleep(index);
+		if (data.must_eat != 0)
+			cycles--;
+	}
 	return (NULL);
 }
 
 int	ft_create_threads()
 {
 	int				i;
-	struct timeval	cur_time;
 
 	i = 0;
 	while (i < data.forks)
 		pthread_mutex_init(&mutex[i++], NULL);
 	pthread_mutex_init(&message, NULL);
 	pthread_mutex_init(&take_forks, NULL);
-	gettimeofday(&cur_time, NULL);
-	data.start_msec = cur_time.tv_sec * 1000 + cur_time.tv_usec;
-	printf("seconds : %ld microseconds : %d together: %lld\n", cur_time.tv_sec, cur_time.tv_usec, data.start_msec);
 	data.philos = (pthread_t *)malloc(sizeof(pthread_t) * data.forks);
+	data.timestamp = (long long *)malloc(sizeof(long long) * data.forks);
+	data.prev_msec = (long long *)malloc(sizeof(long long) * data.forks);
+	data.zero_time = 0;
 	i = 0;
 	while (i < data.forks)
 	{
+		data.timestamp[i] = 0;
+		data.prev_msec[i] = 0;
 		if (pthread_create(&data.philos[i], NULL, &ft_actions, &i) != 0)
 			return (1);
 		i++;
@@ -169,7 +172,6 @@ int	ft_create_threads()
 
 int	main(int argc, char **argv)
 {
-	
 	if (argc < 5)
 		return (ft_putstr_ret("Error\n", 2));
 	if (ft_parser(argc, argv, &data) == 1)
