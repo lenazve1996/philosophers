@@ -6,15 +6,12 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/02 19:44:20 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/06 19:45:47 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-pthread_mutex_t mutex[3];
-pthread_mutex_t take_forks;
-pthread_mutex_t message;
 t_lst data;
 
 static int	ft_check_characters(char *str)
@@ -66,9 +63,16 @@ int	ft_parser(int ac, char **av, t_lst *data)
 
 void	ft_eat(int i)
 {
+	if (data.timestamp[i] - data.last_dinner[i] >= data.die_time)
+	{
+		pthread_mutex_lock(&data.message);
+		printf("%lld %d died\n", data.timestamp[i], i + 1);
+		pthread_mutex_unlock(&data.message);
+		exit(1);
+	}
 	printf("%lld %d is eating\n", data.timestamp[i], i + 1);
-	pthread_mutex_unlock(&message);
-	usleep(data.eat_time);
+	pthread_mutex_unlock(&data.message);
+	usleep(data.eat_time * 1000);
 }
 
 void	ft_sleep(int i)
@@ -76,11 +80,22 @@ void	ft_sleep(int i)
 	struct timeval		cur_time;
 	
 	gettimeofday(&cur_time, NULL);
-	data.timestamp[i] = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.prev_msec[i]; 
-	pthread_mutex_lock(&message);
+	data.timestamp[i] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - data.prev_msec[i]; 
+	pthread_mutex_lock(&data.message);
 	printf("%lld %d is sleeping\n", data.timestamp[i], i + 1);
-	pthread_mutex_unlock(&message);
-	usleep(data.sleep_time);
+	pthread_mutex_unlock(&data.message);
+	usleep(data.sleep_time * 1000);
+}
+
+void	ft_think(int i)
+{
+	struct timeval		cur_time;
+	
+	gettimeofday(&cur_time, NULL);
+	data.timestamp[i] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - data.prev_msec[i]; 
+	pthread_mutex_lock(&data.message);
+	printf("%lld %d is thinking\n", data.timestamp[i], i + 1);
+	pthread_mutex_unlock(&data.message);
 
 }
 void	*ft_actions(void *i)
@@ -97,58 +112,59 @@ void	*ft_actions(void *i)
 		right_fork = 0;
 	else 
 		right_fork = index + 1;
-	printf("here index %d\n", index);
 	if (data.must_eat != 0)
 		cycles = data.must_eat;
 	else
 		cycles = 1;
 	while (cycles)
 	{
-		pthread_mutex_lock(&mutex[index]);
-		pthread_mutex_lock(&mutex[index + 1]);
 		gettimeofday(&cur_time, NULL);
 		if (data.timestamp[index] == 0 && data.prev_msec[index] == 0)
 		{
-			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
 		}
 		else
 		{
-			data.timestamp[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec - data.prev_msec[index];
-			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec;
+			data.timestamp[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - data.prev_msec[index];
+			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
 		}
-		pthread_mutex_lock(&message);
+		pthread_mutex_lock(&data.mut[index]);
+		pthread_mutex_lock(&data.mut[index + 1]);
+		pthread_mutex_lock(&data.message);
 		printf("%lld %d has taken a fork %d\n", data.timestamp[index], index + 1, index);
 		printf("%lld %d has taken a fork %d\n", data.timestamp[index], index + 1, index + 1);
-		printf("seconds : %ld microseconds : %d together: %ld\n", cur_time.tv_sec, cur_time.tv_usec, cur_time.tv_sec * 1000 + cur_time.tv_usec);
-		pthread_mutex_unlock(&message);
+		pthread_mutex_unlock(&data.message);
 		ft_eat(index);
-		pthread_mutex_unlock(&mutex[index]);
-		pthread_mutex_unlock(&mutex[index + 1]);
+		pthread_mutex_unlock(&data.mut[index]);
+		pthread_mutex_unlock(&data.mut[index + 1]);
 		ft_sleep(index);
 		if (data.must_eat != 0)
 			cycles--;
+		ft_think(index);
 	}
 	return (NULL);
 }
 
 int	ft_create_threads()
 {
-	int				i;
+	int	i;
 
 	i = 0;
+	data.mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data.forks);
 	while (i < data.forks)
-		pthread_mutex_init(&mutex[i++], NULL);
-	pthread_mutex_init(&message, NULL);
-	pthread_mutex_init(&take_forks, NULL);
+		pthread_mutex_init(&data.mut[i++], NULL);
+	pthread_mutex_init(&data.message, NULL);
 	data.philos = (pthread_t *)malloc(sizeof(pthread_t) * data.forks);
 	data.timestamp = (long long *)malloc(sizeof(long long) * data.forks);
 	data.prev_msec = (long long *)malloc(sizeof(long long) * data.forks);
+	data.last_dinner = (long long *)malloc(sizeof(long long) * data.forks);
 	data.zero_time = 0;
 	i = 0;
 	while (i < data.forks)
 	{
 		data.timestamp[i] = 0;
 		data.prev_msec[i] = 0;
+		data.last_dinner[i] = 0;
 		if (pthread_create(&data.philos[i], NULL, &ft_actions, &i) != 0)
 			return (1);
 		i++;
@@ -162,9 +178,8 @@ int	ft_create_threads()
 	}
 	i = 0;
 	while (i < data.forks)
-		pthread_mutex_destroy(&mutex[i++]);
-	pthread_mutex_destroy(&take_forks);
-	pthread_mutex_init(&message, NULL);
+		pthread_mutex_destroy(&data.mut[i++]);
+	pthread_mutex_init(&data.message, NULL);
 	free(data.philos);
 	return (0);
 }

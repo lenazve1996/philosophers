@@ -12,9 +12,11 @@ typedef struct	s_lst
 {
 	int				forks;
 	pthread_t		*philos;
-	pthread_mutex_t	mut;
+	pthread_mutex_t *mut;
+	pthread_mutex_t message;
 	long long		*prev_msec;
 	long long		*timestamp;
+	long long		*last_dinner;
 	int				die_time;
 	int				eat_time;
 	int 			sleep_time;
