@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/07 18:40:06 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/07 19:05:37 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,20 +61,20 @@ int	ft_parser(int ac, char **av, t_lst *data)
 	return (0);
 }
 
-void	ft_eat(int i)
+void	ft_eat(t_ph *ph, long long timestamp)
 {
-	if (data.timestamp[i] - data.last_dinner[i] >= data.die_time)
+	if (timestamp - ph->last_dinner == ph->die_time)
 	{
-		pthread_mutex_lock(&data.message);
-		printf("%lld %d died\n", data.timestamp[i], i + 1);
-		pthread_mutex_unlock(&data.message);
+		pthread_mutex_lock(ph->message);
+		printf("%lld %d died\n", timestamp, ph->id + 1);
+		pthread_mutex_unlock(ph->message);
 		exit(1);
 	}
-	pthread_mutex_lock(&data.message);
-	printf("%lld %d is eating\n", data.timestamp[i], i + 1);
-	pthread_mutex_unlock(&data.message);
-	data.last_dinner[i] = data.timestamp[i];
-	usleep(data.eat_time * 1000);
+	pthread_mutex_lock(ph->message);
+	printf("%lld %d is eating\n", timestamp, ph->id + 1);
+	pthread_mutex_unlock(ph->message);
+	ph->last_dinner = timestamp;
+	usleep(ph->eat_time * 1000);
 }
 
 void	ft_sleep(int i)
@@ -83,9 +83,9 @@ void	ft_sleep(int i)
 	
 	gettimeofday(&cur_time, NULL);
 	data.timestamp[i] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - data.prev_msec[i]; 
-	pthread_mutex_lock(&data.message);
+	pthread_mutex_lock(ph->message);
 	printf("%lld %d is sleeping\n", data.timestamp[i], i + 1);
-	pthread_mutex_unlock(&data.message);
+	pthread_mutex_unlock(ph->message);
 	usleep(data.sleep_time * 1000);
 }
 
@@ -95,49 +95,54 @@ void	ft_think(int i)
 	
 	gettimeofday(&cur_time, NULL);
 	data.timestamp[i] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - data.prev_msec[i]; 
-	pthread_mutex_lock(&data.message);
+	pthread_mutex_lock(ph->message);
 	printf("%lld %d is thinking\n", data.timestamp[i], i + 1);
-	pthread_mutex_unlock(&data.message);
+	pthread_mutex_unlock(ph->message);
 
 }
-void	*ft_actions(void *i)
+void	*ft_actions(void *philosopher)
 {
+	t_ph				*ph;
 	int					index;
+	long long			timestamp;
 	int					cycles;
 	int					right_fork;
 	int					left_fork;
 	struct timeval		cur_time;
 	
-	index = *(int *)i;
-	left_fork = index;
-	if (index + 1 == data.forks)
-		right_fork = 0;
-	else 
-		right_fork = index + 1;
-	if (data.must_eat != 0)
-		cycles = data.must_eat;
+	//left_fork = index;
+	//if (index + 1 == data.forks)
+	//	right_fork = 0;
+	//else 
+	//	right_fork = index + 1;
+	ph = (t_ph *)philosopher;
+	if (ph->must_eat != 0)
+		cycles = ph->must_eat;
 	else
 		cycles = 1;
 	while (cycles)
 	{
 		gettimeofday(&cur_time, NULL);
 		//printf("HERE\n");
-		if (data.timestamp[index] == 0 && data.prev_msec[index] == 0)
+		if (cycles == 1)
 		{
-			printf("HERE\n");
-			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
+			ph->zero_time = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
+			timestamp = 0;
 		}
 		else
-			data.timestamp[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - data.prev_msec[index];
-		pthread_mutex_lock(&data.mut[index]);
-		pthread_mutex_lock(&data.mut[index + 1]);
-		pthread_mutex_lock(&data.message);
-		printf("%lld %d has taken a fork %d\n", data.timestamp[index], index + 1, index);
-		printf("%lld %d has taken a fork %d\n", data.timestamp[index], index + 1, index + 1);
-		pthread_mutex_unlock(&data.message);
-		ft_eat(index);
-		pthread_mutex_unlock(&data.mut[index]);
-		pthread_mutex_unlock(&data.mut[index + 1]);
+			timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - ph->zero_time;
+		pthread_mutex_lock(ph->left_fork);
+		pthread_mutex_lock(ph->right_fork);
+		pthread_mutex_lock(ph->message);
+		printf("%lld %d has taken a fork %d\n", timestamp, ph->id + 1, ph->id);
+		if (ph->id != data.forks)
+			printf("%lld %d has taken a fork %d\n", data.timestamp[index], ph->id + 1, ph->id + 1);
+		else if (ph->id == data.forks)
+			printf("%lld %d has taken a fork %d\n", data.timestamp[index], ph->id + 1, 0);
+		pthread_mutex_unlock(ph->message);
+		ft_eat(ph, timestamp);
+		pthread_mutex_unlock(ph->left_fork);
+		pthread_mutex_unlock(ph->right_fork);
 		ft_sleep(index);
 		if (data.must_eat != 0)
 			cycles--;
@@ -168,7 +173,7 @@ int	ft_create_threads()
 	{
 		data.ph[i].id = i;
 		//data.ph[i].message = message;
-		data.ph[i].prev_msec = 0;
+		//data.ph[i].zero_msec = 0;
 		data.ph[i].last_dinner = 0;
 		data.ph[i].die_time = data.die_time;
 		data.ph[i].eat_time = data.eat_time;
@@ -182,7 +187,7 @@ int	ft_create_threads()
 		data.timestamp[i] = 0;
 		data.prev_msec[i] = 0;
 		data.last_dinner[i] = 0;
-		if (pthread_create(&data.philos[i], NULL, &ft_actions, &i) != 0)
+		if (pthread_create(&data.philos[i], NULL, &ft_actions, &data.ph[i]) != 0)
 			return (1);
 		i++;
 	}

@@ -14,7 +14,7 @@ typedef struct	s_ph
 	pthread_mutex_t	*message;
 	pthread_mutex_t *left_fork;
 	pthread_mutex_t *right_fork;
-	long long		prev_msec;
+	long long		zero_time;
 	long long		last_dinner;
 	int				die_time;
 	int				eat_time;
