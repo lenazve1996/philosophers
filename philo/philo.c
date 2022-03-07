@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/06 19:45:47 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/07 18:40:06 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,10 @@ void	ft_eat(int i)
 		pthread_mutex_unlock(&data.message);
 		exit(1);
 	}
+	pthread_mutex_lock(&data.message);
 	printf("%lld %d is eating\n", data.timestamp[i], i + 1);
 	pthread_mutex_unlock(&data.message);
+	data.last_dinner[i] = data.timestamp[i];
 	usleep(data.eat_time * 1000);
 }
 
@@ -119,15 +121,14 @@ void	*ft_actions(void *i)
 	while (cycles)
 	{
 		gettimeofday(&cur_time, NULL);
+		//printf("HERE\n");
 		if (data.timestamp[index] == 0 && data.prev_msec[index] == 0)
 		{
+			printf("HERE\n");
 			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
 		}
 		else
-		{
 			data.timestamp[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - data.prev_msec[index];
-			data.prev_msec[index] = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
-		}
 		pthread_mutex_lock(&data.mut[index]);
 		pthread_mutex_lock(&data.mut[index + 1]);
 		pthread_mutex_lock(&data.message);
@@ -148,20 +149,36 @@ void	*ft_actions(void *i)
 int	ft_create_threads()
 {
 	int	i;
+	//pthread_mutex_t *message;
 
 	i = 0;
 	data.mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data.forks);
 	while (i < data.forks)
 		pthread_mutex_init(&data.mut[i++], NULL);
+	//pthread_mutex_init(message, NULL);
 	pthread_mutex_init(&data.message, NULL);
 	data.philos = (pthread_t *)malloc(sizeof(pthread_t) * data.forks);
 	data.timestamp = (long long *)malloc(sizeof(long long) * data.forks);
 	data.prev_msec = (long long *)malloc(sizeof(long long) * data.forks);
 	data.last_dinner = (long long *)malloc(sizeof(long long) * data.forks);
-	data.zero_time = 0;
+	data.ph = (t_ph *)malloc(sizeof(t_ph) * data.forks);
+	//data.zero_time = 0;
 	i = 0;
 	while (i < data.forks)
 	{
+		data.ph[i].id = i;
+		//data.ph[i].message = message;
+		data.ph[i].prev_msec = 0;
+		data.ph[i].last_dinner = 0;
+		data.ph[i].die_time = data.die_time;
+		data.ph[i].eat_time = data.eat_time;
+		data.ph[i].sleep_time = data.sleep_time;
+		data.ph[i].must_eat = data.must_eat;
+		data.ph[i].left_fork = &data.mut[i];
+		if (i != data.forks)
+			data.ph[i].right_fork = &data.mut[i + 1];
+		else if (i == data.forks)
+			data.ph[i].right_fork = &data.mut[0];
 		data.timestamp[i] = 0;
 		data.prev_msec[i] = 0;
 		data.last_dinner[i] = 0;

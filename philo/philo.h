@@ -8,6 +8,20 @@
 # include <stdlib.h>
 # include <sys/time.h> 
 
+typedef struct	s_ph
+{
+	int				id;
+	pthread_mutex_t	*message;
+	pthread_mutex_t *left_fork;
+	pthread_mutex_t *right_fork;
+	long long		prev_msec;
+	long long		last_dinner;
+	int				die_time;
+	int				eat_time;
+	int 			sleep_time;
+	int				must_eat;
+}				t_ph;
+
 typedef struct	s_lst
 {
 	int				forks;
@@ -22,6 +36,7 @@ typedef struct	s_lst
 	int 			sleep_time;
 	int				must_eat;
 	int				zero_time;
+	t_ph			*ph;
 }				t_lst;
 
 size_t	ft_strlen(const char *s);
