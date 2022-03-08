@@ -11,6 +11,7 @@
 typedef struct	s_ph
 {
 	int				id;
+	int				numb;
 	pthread_mutex_t	*message;
 	pthread_mutex_t *left_fork;
 	pthread_mutex_t *right_fork;
@@ -24,18 +25,13 @@ typedef struct	s_ph
 
 typedef struct	s_lst
 {
-	int				forks;
+	int				numb;
 	pthread_t		*philos;
 	pthread_mutex_t *mut;
-	pthread_mutex_t message;
-	long long		*prev_msec;
-	long long		*timestamp;
-	long long		*last_dinner;
 	int				die_time;
 	int				eat_time;
 	int 			sleep_time;
 	int				must_eat;
-	int				zero_time;
 	t_ph			*ph;
 }				t_lst;
 
