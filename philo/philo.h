@@ -28,6 +28,7 @@ typedef struct	s_lst
 	int				numb;
 	pthread_t		*philos;
 	pthread_mutex_t *mut;
+	pthread_mutex_t message;
 	int				die_time;
 	int				eat_time;
 	int 			sleep_time;

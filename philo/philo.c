@@ -6,16 +6,42 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/08 19:39:23 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/09 19:41:25 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-//void	ft_clearing(t_lst *data)
+void	free_mut_array(t_lst *data, int free_numb)
+{
+	if (data->mut != NULL)
+	{
+		while (free_numb != 0)
+			pthread_mutex_destroy(&data->mut[--free_numb]);
+	}
+}
+
+//void	free_thread_array(t_lst *data, int free_numb)
 //{
-//	//if (data->philos != NULL)	
+//	int	id;
+	
+//	id = 0;
+//	while (free_numb != 0)
+//		pthread_mutex_destroy(&data->mut[--free_numb]);
+//	pthread_mutex_destroy(&data->message);
 //}
+
+int	ft_clearing(t_lst *data, int error_flag)
+{
+	if (data->philos != NULL)
+		free(data->philos);
+	if (data->mut != NULL)
+		free(data->mut);
+	if (data->ph != NULL)
+		free(data->ph);
+	free_mut_array(data, data->numb);
+	return (error_flag);
+}
 
 static int	ft_check_characters(char *str)
 {
@@ -168,8 +194,33 @@ int	ft_creation(t_lst *data, pthread_mutex_t message)
 			data->ph[id].right_fork = &data->mut[0];
 		data->ph[id].zero_time = -1;
 		if (pthread_create(&data->philos[id], NULL, &ft_actions, &data->ph[id]) != 0)
+		{
+			//free_thread_array(data, id);
 			return (1);
+		}
 		id++;
+	}
+	return (0);
+}
+
+int	ft_initialize_mutexes(t_lst *data)
+{
+	int				id;
+
+	id = 0;
+	while (id < data->numb)
+	{
+		if (pthread_mutex_init(&data->mut[id], NULL) != 0)
+		{
+			free_mut_array(data, id);
+			return (1);
+		}
+		id++;
+	}
+	if (pthread_mutex_init(&data->message, NULL) != 0)
+	{
+		pthread_mutex_destroy(&data->message);
+		return (1);
 	}
 	return (0);
 }
@@ -177,37 +228,28 @@ int	ft_creation(t_lst *data, pthread_mutex_t message)
 int	ft_create_threads(t_lst *data)
 {
 	int	id;
-	pthread_mutex_t message;
 
 	printf("%p\n", data->philos);
 	printf("%p\n", data->ph);
 	printf("%p\n", data->mut);
 	data->philos = (pthread_t *)malloc(sizeof(pthread_t) * data->numb);
 	if (data->philos == NULL)
-		return (1);
+		return(1);
 	data->ph = (t_ph *)malloc(sizeof(t_ph) * data->numb);
 	if (data->ph == NULL)
 	{
-		free(data->philos);
-		return (1);
+		return(1);
 	}
 	data->mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data->numb);
 	if (data->mut == NULL)
 	{
-		free(data->philos);
-		free(data->ph);
-		return (1);
+		return(1);
 	}
-	id = 0;
-	while (id < data->numb)
+	ft_initialize_mutexes(data);
+	if (ft_creation(data, data->message) == 1)
 	{
-		if (pthread_mutex_init(&data->mut[id++], NULL) != 0)
-			return (1);
+		return (1);
 	}
-	if (pthread_mutex_init(&message, NULL) != 0)
-		return (1);
-	if (ft_creation(data, message) == 1)
-		return (1);
 	id = 0;
 	while (id < data->numb)
 	{
@@ -215,10 +257,7 @@ int	ft_create_threads(t_lst *data)
 			return (1);
 		id++;
 	}
-	id = 0;
-	while (id < data->numb)
-		pthread_mutex_destroy(&data->mut[id++]);
-	pthread_mutex_destroy(&message);
+	free_mut_array(data, id);
 	free(data->philos);
 	return (0);
 }
@@ -239,7 +278,9 @@ int	main(int argc, char **argv)
 	printf("%d\n", data.must_eat);
 	if (ft_create_threads(&data) == 1)
 	{
-		//ft_clearing(data);
+		//ft_clearing(&data, 1);
 		return (ft_putstr_ret("Error\n", 2));
 	}
+	//else
+	//	ft_clearing(&data, 0);
 }
