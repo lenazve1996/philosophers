@@ -17,6 +17,7 @@ typedef struct	s_ph
 	pthread_mutex_t *right_fork;
 	long long		zero_time;
 	long long		last_dinner;
+	long long		timestamp;
 	int				die_time;
 	int				eat_time;
 	int 			sleep_time;
