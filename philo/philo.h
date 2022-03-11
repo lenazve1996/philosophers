@@ -30,6 +30,7 @@ typedef struct	s_lst
 	pthread_t		*philos;
 	pthread_mutex_t *mut;
 	pthread_mutex_t message;
+	long long		zero_time;
 	int				die_time;
 	int				eat_time;
 	int 			sleep_time;
