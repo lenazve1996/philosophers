@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/12 19:42:52 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/17 19:32:04 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,208 +80,141 @@ int	ft_parser(int ac, char **av, t_lst *data)
 		i++;
 	}
 	data->numb = ft_atoi(av[1]);
-	data->die_time = ft_atoi(av[2]); 
+	data->die_time = ft_atoi(av[2]);
 	data->eat_time = ft_atoi(av[3]); 
 	data->sleep_time = ft_atoi(av[4]);
 	if (ac == 6)
 		data->must_eat = ft_atoi(av[5]);
 	else if (ac == 5)
 		data->must_eat = 0;
+	if (data->numb <= 0 || data->die_time < 0 || data->eat_time < 0 \
+	|| data->sleep_time < 0 || data->must_eat < 0)
+		return (1);
 	return (0);
 }
 
-void	my_usleep(long long microseconds)
+void	my_usleep(long long msec)
 {
 	struct timeval				cur_time;
 	unsigned long long 			start_time;
 	unsigned long long 			end_time;
+	unsigned long long 			comparison;
 	
 	end_time = 0;
 	gettimeofday(&cur_time, NULL);
-	start_time = cur_time.tv_sec * 1000000 + cur_time.tv_usec;
+	start_time = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
+	comparison = start_time + msec;
+	usleep(1000 * msec - 2000);
 	while (1)
 	{
 		gettimeofday(&cur_time, NULL);
-		end_time = cur_time.tv_sec * 1000000 + cur_time.tv_usec;
-		if (end_time == start_time + microseconds)
+		end_time = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
+		if (end_time >= comparison)
 		{
 			return ;
 		}
+		usleep(250);
 	}
 }
 
-void	ft_eat(t_ph *ph, int first_cycle_flag)
+void	ft_eat(t_ph *ph)
 {
-	struct timeval		cur_time;
-	long long 			time;
-	
-	gettimeofday(&cur_time, NULL);
-	time = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
-	ph->timestamp = time - ph->zero_time;
-	if (first_cycle_flag)
-		ph->last_dinner = time - ph->eat_time;
-	else
-		ph->last_dinner = time;
 	pthread_mutex_lock(ph->message);
-	printf("%lld %d is eating\n", ph->timestamp, ph->id + 1);
+	printf("%lld %d is eating\n", *ph->time - ph->zero_time, ph->id + 1);
 	pthread_mutex_unlock(ph->message);
-	usleep(ph->eat_time * 1000);
-	//my_usleep(ph->eat_time * 1000);
+	//ph->last_dinner = *ph->time + 200;
+	//usleep(ph->eat_time * 1000);
+	my_usleep(ph->eat_time);
+	ph->last_eat_timestamp = *ph->time;
+	ph->last = *ph->time - ph->last_time;
+	ph->last_time = *ph->time;
+	pthread_mutex_lock(ph->message);
+	ph->already_ate++;
+	pthread_mutex_unlock(ph->message);
+	//printf("ph->last %lld\n", ph->last);
+	//printf("ph->last_time %lld\n", ph->last_time);
+	//printf("ph->time %lld\n", *ph->time);
+	//printf("--->>>>> %lld\n", *ph->time - ph->last_eat_timestamp);
+	//ph->last_dinner = *ph->time;
 }
 
 void	ft_sleep(t_ph *ph)
 {
-	struct timeval		cur_time;
-	
-	gettimeofday(&cur_time, NULL);
-	ph->timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - ph->zero_time; 
 	pthread_mutex_lock(ph->message);
-	printf("%lld %d is sleeping\n", ph->timestamp, ph->id + 1);
+	printf("%lld %d is sleeping\n", *ph->time - ph->zero_time, ph->id + 1);
 	pthread_mutex_unlock(ph->message);
-	usleep(ph->sleep_time * 1000);
-	//my_usleep(ph->sleep_time * 1000);
+	//usleep(ph->sleep_time * 1000);
+	my_usleep(ph->sleep_time);
 }
 
 void	ft_think(t_ph *ph)
 {
-	struct timeval		cur_time;
-	
-	gettimeofday(&cur_time, NULL);
-	ph->timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - ph->zero_time;
 	pthread_mutex_lock(ph->message);
-	printf("%lld %d is thinking\n", ph->timestamp, ph->id + 1);
+	printf("%lld %d is thinking\n", *ph->time - ph->zero_time, ph->id + 1);
 	pthread_mutex_unlock(ph->message);
 }
+
 void	*ft_actions(void *philosopher)
 {
 	t_ph				*ph;
-	int					first_cycle_flag;
 	int					cycles;
-	struct timeval		cur_time;
 	
 	ph = (t_ph *)philosopher;
 	if (ph->must_eat != 0)
 		cycles = ph->must_eat;
 	else
 		cycles = 1;
-	first_cycle_flag = 1;
 	while (cycles)
 	{
-		//printf("%p\n", ph->left_fork);
-		//printf("%p\n", ph->right_fork);
-		
-		pthread_mutex_lock(ph->new);
+		//if (ph->id + 1 != ph->numb)
+		//	pthread_mutex_lock(ph->left_fork);
+		//else if (ph->id + 1 == ph->numb)
+		//	pthread_mutex_lock(ph->right_fork);
 		pthread_mutex_lock(ph->left_fork);
 		pthread_mutex_lock(ph->message);
-		gettimeofday(&cur_time, NULL);
-		ph->timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - ph->zero_time;
-		//printf("ph->timestamp: %lld\n", ph->timestamp);
-		printf("%lld %d has taken a fork %d\n", ph->timestamp, ph->id + 1, ph->id);
+		printf("%lld %d has taken a fork\n", *ph->time - ph->zero_time, ph->id + 1);
 		pthread_mutex_unlock(ph->message);
 		pthread_mutex_lock(ph->right_fork);
-		pthread_mutex_unlock(ph->new);
+		//if (ph->id + 1 != ph->numb)
+		//	pthread_mutex_lock(ph->right_fork);
+		//else if (ph->id + 1 == ph->numb)
+		//	pthread_mutex_lock(ph->left_fork);
 		pthread_mutex_lock(ph->message);
-		gettimeofday(&cur_time, NULL);
-		ph->timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000 - ph->zero_time;
 		if (ph->id + 1 != ph->numb)
-			printf("%lld %d has taken a fork %d\n", ph->timestamp, ph->id + 1, ph->id + 1);
+			printf("%lld %d has taken a fork\n", *ph->time - ph->zero_time, ph->id + 1);
 		else if (ph->id + 1 == ph->numb)
-			printf("%lld %d has taken a fork %d\n", ph->timestamp, ph->id + 1, 0);
+			printf("%lld %d has taken a fork\n", *ph->time - ph->zero_time, ph->id + 1);
 		pthread_mutex_unlock(ph->message);
-		ft_eat(ph, first_cycle_flag);
+		ft_eat(ph);
+		//if (ph->id + 1 != ph->numb)
+		//{
+		//	pthread_mutex_unlock(ph->right_fork);
+		//	usleep(100);
+		//	pthread_mutex_unlock(ph->left_fork);
+		//	usleep(200);
+		//}
+		//else if (ph->id + 1 == ph->numb)
+		//{
+		//	pthread_mutex_unlock(ph->left_fork);
+		//	usleep(100);
+		//	pthread_mutex_unlock(ph->right_fork);
+		//	usleep(200);
+		//}
 		pthread_mutex_unlock(ph->left_fork);
 		pthread_mutex_unlock(ph->right_fork);
 		ft_sleep(ph);
 		ft_think(ph);
 		if (ph->must_eat != 0)
 			cycles--;
-		first_cycle_flag = 0;
+			
 	}
 	return (NULL);
 }
 
-int	ft_creation(t_lst *data)
+int	ft_run_threads(int id, t_lst *data)
 {
-	int					id;
-	int					rv;
-	struct timeval		cur_time;
+	int	rv;
 	
-	id = 0;
-	gettimeofday(&cur_time, NULL);
-	data->zero_time = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
-	//printf("ZERO: %lld\n", zero);
-	//while (id < data->numb)
-	//{
-	//	data->ph[id].id = id;
-	//	data->ph[id].numb = data->numb;
-	//	data->ph[id].message = &data->message;
-	//	data->ph[id].new = &data->new;
-	//	data->ph[id].last_dinner = data->zero_time;
-	//	data->ph[id].die_time = data->die_time;
-	//	data->ph[id].eat_time = data->eat_time;
-	//	data->ph[id].sleep_time = data->sleep_time;
-	//	data->ph[id].must_eat = data->must_eat;
-	//	data->ph[id].left_fork = &data->mut[id];
-	//	if (id + 1 != data->numb)
-	//		data->ph[id].right_fork = &data->mut[id + 1];
-	//	else if (id + 1 == data->numb)
-	//		data->ph[id].right_fork = &data->mut[0];
-	//	data->ph[id].zero_time = data->zero_time;
-	//	rv = pthread_create(&data->philos[id], NULL, &ft_actions, &data->ph[id]);
-	//	if (rv != 0)
-	//	{
-	//		printf("Error: return code from pthread_create is %d", rv);
-	//		return (1);
-	//	}
-	//	id = id + 2;
-	//}
-	//id = 1;
-	//usleep(100);
-	//while (id < data->numb)
-	//{
-	//	data->ph[id].id = id;
-	//	data->ph[id].numb = data->numb;
-	//	data->ph[id].message = &data->message;
-	//	data->ph[id].new = &data->new;
-	//	data->ph[id].last_dinner = data->zero_time;
-	//	data->ph[id].die_time = data->die_time;
-	//	data->ph[id].eat_time = data->eat_time;
-	//	data->ph[id].sleep_time = data->sleep_time;
-	//	data->ph[id].must_eat = data->must_eat;
-	//	data->ph[id].left_fork = &data->mut[id];
-	//	if (id + 1  != data->numb)
-	//		data->ph[id].right_fork = &data->mut[id + 1];
-	//	else if (id + 1  == data->numb)
-	//		data->ph[id].right_fork = &data->mut[0];
-	//	data->ph[id].zero_time = data->zero_time;
-	//	rv = pthread_create(&data->philos[id], NULL, &ft_actions, &data->ph[id]);
-	//	if (rv != 0)
-	//	{
-	//		printf("Error: return code from pthread_create is %d", rv);
-	//		return (1);
-	//	}
-	//	id = id + 2;
-	//}
-	while (id < data->numb)
-	{
-		data->ph[id].id = id;
-		data->ph[id].numb = data->numb;
-		data->ph[id].message = &data->message;
-		data->ph[id].new = &data->new;
-		data->ph[id].last_dinner = data->zero_time;
-		data->ph[id].die_time = data->die_time;
-		data->ph[id].eat_time = data->eat_time;
-		data->ph[id].sleep_time = data->sleep_time;
-		data->ph[id].must_eat = data->must_eat;
-		data->ph[id].left_fork = &data->mut[id];
-		if (id + 1  != data->numb)
-			data->ph[id].right_fork = &data->mut[id + 1];
-		else if (id + 1  == data->numb)
-			data->ph[id].right_fork = &data->mut[0];
-		data->ph[id].zero_time = data->zero_time;
-		id++;
-	}
-	id = 0;
 	while (id < data->numb)
 	{
 		rv = pthread_create(&data->philos[id], NULL, &ft_actions, &data->ph[id]);
@@ -290,8 +223,50 @@ int	ft_creation(t_lst *data)
 			printf("Error: return code from pthread_create is %d", rv);
 			return (1);
 		}
-		id = id + 1;
+		id = id + 2;
 	}
+	return (0);
+}
+
+int	ft_creation(t_lst *data)
+{
+	int					id;
+	struct timeval		cur_time;
+	
+	id = 0;
+	gettimeofday(&cur_time, NULL);
+	data->zero_time = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
+	data->time = data->zero_time;
+	data->already_ate = 0;
+	while (id < data->numb)
+	{
+		data->ph[id].id = id;
+		data->ph[id].numb = data->numb;
+		data->ph[id].message = &data->message;
+		data->ph[id].last_dinner = data->zero_time;
+		data->ph[id].last = 0;
+		data->ph[id].last_time = data->zero_time;
+		data->ph[id].last_eat_timestamp = data->zero_time;
+		data->ph[id].die_time = data->die_time;
+		data->ph[id].eat_time = data->eat_time;
+		data->ph[id].time = &data->time;
+		data->ph[id].already_ate = &data->already_ate; 
+		data->ph[id].sleep_time = data->sleep_time;
+		data->ph[id].must_eat = data->must_eat;
+		data->ph[id].already_ate = 0;
+		data->ph[id].left_fork = &data->mut[id];
+		if (id + 1 != data->numb)
+			data->ph[id].right_fork = &data->mut[id + 1];
+		else if (id + 1 == data->numb)
+			data->ph[id].right_fork = &data->mut[0];
+		data->ph[id].zero_time = data->zero_time;
+		id++;
+	}
+	if (ft_run_threads(0, data) == 1)
+		return (2);
+	usleep(100);
+	if (ft_run_threads(1, data) == 1)
+		return (1);
 	return (0);
 
 	
@@ -317,13 +292,13 @@ int	ft_initialize_mutexes(t_lst *data)
 		free_mut_array(data, id);
 		return (1);
 	}
-	if (pthread_mutex_init(&data->new, NULL) != 0)
-	{
-		pthread_mutex_destroy(&data->new);
-		pthread_mutex_destroy(&data->message);
-		free_mut_array(data, id);
-		return (1);
-	}
+	//if (pthread_mutex_init(&data->new, NULL) != 0)
+	//{
+	//	pthread_mutex_destroy(&data->new);
+	//	pthread_mutex_destroy(&data->message);
+	//	free_mut_array(data, id);
+	//	return (1);
+	//}
 	return (0);
 }
 
@@ -332,36 +307,41 @@ void	ft_monitor_death(t_lst *data)
 	struct timeval		cur_time;
 	long long 			timestamp;
 	int					i;
+	int					times_to_eat;
 	
-	//gettimeofday(&cur_time, NULL);
-	//timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
-	//if (data->numb == 1)
-	//{
-	//	printf("%lld %d died\n", timestamp - data->zero_time, 1);
-	//	exit (0);
-	//}
+	times_to_eat = data->numb * data->must_eat;
 	while (1)
 	{
-		gettimeofday(&cur_time, NULL);
-		timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
 		i = 0;
 		while (i < data->numb)
 		{
-			//printf("philo %d time died %lld\n\n", i + 1, timestamp - data->eat_time - data->ph[i].last_dinner);
-			//printf("timestamp %lld\n", timestamp);
-			//printf("data->eat_time %d\n", data->eat_time);
+		gettimeofday(&cur_time, NULL);
+		timestamp = cur_time.tv_sec * 1000 + cur_time.tv_usec / 1000;
+		data->time = timestamp;
+		//data->time = timestamp - data->zero_time;
+		//printf("timestamp %lld\n", timestamp);
+		//printf("data->time %lld\n", data->time);
 			//printf("data->ph[i].last_dinner %lld\n", data->ph[i].last_dinner);
 			//printf("data->die_time %d\n", data->die_time);
-			if (timestamp - data->eat_time - data->ph[i].last_dinner > data->die_time || ((data->die_time < data->eat_time) && (timestamp - data->zero_time == data->die_time)))
+			//if (data->time - data->ph[i].last_dinner > data->die_time || ((data->die_time < data->eat_time) && (timestamp - data->zero_time == data->die_time)))
+			//{
+			//	pthread_mutex_lock(&data->message);
+			//	printf("\nphilo %d time died %lld\n", data->ph->id + 1, data->time - data->ph[i].last_dinner); //del
+			//	printf("%lld %d died\n", timestamp - data->zero_time, data->ph->id + 1);
+			//	pthread_mutex_unlock(&data->message);
+			//	return ;
+			//}
+			if (data->must_eat != 0 && data->already_ate == times_to_eat)
+			{
+				exit(0);
+			}
+			if (data->ph[i].last > data->die_time || data->time - data->ph[i].last_eat_timestamp > data->die_time)
 			{
 				pthread_mutex_lock(&data->message);
-				//printf("\nphilo %d time died %lld\n", i + 1, timestamp - data->eat_time - data->ph[i].last_dinner); //del
-				printf("%lld %d died\n", timestamp - data->zero_time, i + 1);
-				//printf("philo %d last dinner %lld\n", i + 1, data->ph[i].last_dinner);
-				//printf("philo %d timestamp death %lld\n", i + 1, timestamp);
-				//printf("philo %d data->die_time %d\n", i + 1, data->die_time);
+				printf("\nphilo %d time died %lld\n", data->ph[i].id + 1, data->time - data->ph[i].last_eat_timestamp); //del
+				printf("%lld %d died\n", timestamp - data->zero_time, data->ph[i].id + 1);
 				pthread_mutex_unlock(&data->message);
-				exit (0);
+				return ;
 			}
 			i++;
 		}
@@ -406,11 +386,11 @@ int	main(int argc, char **argv)
 		return (ft_putstr_ret("Error\n", 2));
 	if (ft_parser(argc, argv, &data) == 1)
 		return (ft_putstr_ret("Error\n", 2));
-	printf("%d\n", data.numb);
-	printf("%d\n", data.die_time);
-	printf("%d\n", data.eat_time);
-	printf("%d\n", data.sleep_time);
-	printf("%d\n", data.must_eat);
+	//printf("%d\n", data.numb);
+	//printf("%d\n", data.die_time);
+	//printf("%d\n", data.eat_time);
+	//printf("%d\n", data.sleep_time);
+	//printf("%d\n", data.must_eat);
 	if (ft_create_threads(&data) == 1)
 	{
 		ft_clearing(&data, 1);
