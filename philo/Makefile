@@ -1,8 +1,10 @@
 NAME		= philo
 BONUS		= philo_bonus
 CC			= gcc
-FLAGS		= -Wall -Wextra -Werror -g -fsanitize=address 
-SRC			= libft/ft_atoi.c libft/ft_strlen.c libft/ft_isdigit_orsign.c philo.c
+FLAGS		= -Wall -Wextra -Werror -g #-fsanitize=address 
+SRC			= libft/ft_atoi.c libft/ft_strlen.c libft/ft_isdigit_orsign.c \
+				libft/ft_putstr_ret.c philo.c cleaning.c parser.c monitoring.c \
+				main.c actions.c time.c
 #SRC_BONUS	= 
 OBJ			= $(SRC:.c=.o)
 #OBJ_BONUS	= $(SRC_BONUS:.c=.o)
