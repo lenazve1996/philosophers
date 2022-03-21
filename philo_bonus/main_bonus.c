@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/19 17:24:39 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/21 19:37:05 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,22 +68,88 @@
 
 static int	ft_creation(t_lst *data)
 {
-	int		numb;
-	pid_t	pid;
+	int				n;
+	//pthread_t		thread;
+	sem_t			*semaphore;
+	sem_t			*message;
+	int				status;
+	long long		*ph;
+	//int				r;
+	pid_t			pid;
 	
-	numb = 0;
-	while (numb < data->numb)
+	//n = 0;
+	//semaphore = malloc(data->numb * (sem_t *))
+	//while (n < data->numb)
+	//{
+	//	semaphore[n] = sem_open(name, O_CREAT);
+	//	n++;
+	//}
+	ph = (long long *)malloc(sizeof(long long) * data->numb);
+	semaphore = sem_open("semaphore", O_CREAT | O_EXCL, 0644, 1);
+	if (semaphore == SEM_FAILED)
+	{
+		perror("");
+		return (ft_putstr_ret("Error: sem_open1 failed\n", 2));
+	}
+	sem_unlink("semaphore");
+	message = sem_open("message", O_CREAT | O_EXCL, 0644, 1);
+	if (message == SEM_FAILED)
+	{
+		perror("");
+		return (ft_putstr_ret("Error: sem_open2 failed\n", 2));
+	}
+	sem_unlink("message");
+	n = 0;
+	ft_initial_time(data);
+	while (n < data->numb)
 	{
 		pid = fork();
 		if (pid == -1)
+		{
+			sem_unlink("semaphore");
+			sem_close(semaphore);
 			return (ft_putstr_ret("Error: fork failed\n", 2));
+		}
 		if (pid == 0)
 		{
-			printf("Child here\n");
-			exit(0);
+			int	k;
+			int	cycles;
+
+			k = 0;
+			ft_define_cycles_numb(data);
+			cycles = data->cycles;
+			while (cycles)
+			{
+				sem_wait(semaphore);
+				printf("Child here\n");
+				sleep(1);
+				ft_ph_take_forks(data, n, message);
+				ft_eating(data, n, message, ph);
+				//ft_ph_put_forks(data, n, message);
+				sem_post(semaphore);
+				ft_sleeping(data, n, message);
+				ft_thinking(data, n, message);
+				if (data->must_eat != -1)
+					cycles--;
+			}
+			exit(EXIT_SUCCESS);
 		}
-		numb++;
+		n++;
 	}
+	//r = pthread_create(&thread, NULL, &ft_monitoring, &data);
+	//	if (r != 0)
+	//	{
+	//		ft_putstr_ret("pthread_create failed\n", 2);
+	//		return (1);
+	//	}
+	n = 0;
+	while (n < data->numb)
+	{
+		wait(&status);
+		n++;
+	}
+	sem_close(semaphore);
+	sem_close(message);
 	return (0);
 }
 
@@ -99,6 +165,7 @@ int	main(int argc, char **argv)
 	{
 		return (ft_putstr_ret("Error\n", 2));
 	}
+	printf("data->numb %d\n", data.numb);
 	ft_creation(&data);
 	//{
 	//	return (ft_clearing(&data, 1)); 

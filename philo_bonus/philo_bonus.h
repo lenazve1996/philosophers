@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/19 17:33:13 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/21 19:32:33 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,5 +56,10 @@
 //	t_ph			*ph;
 //}				t_lst;
 
+void	ft_eating(t_lst *data, int n, sem_t *message, long long *ph);
+void	ft_sleeping(t_lst *data, int n, sem_t *message);
+void	ft_thinking(t_lst *data, int n, sem_t *message);
+void	ft_ph_take_forks(t_lst *data, int n, sem_t *message);
+//void	ft_ph_put_forks(t_lst *data, int n, sem_t *message);
 
 #endif

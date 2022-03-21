@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/18 19:35:00 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/21 19:09:48 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ typedef struct s_ph
 	int				eat_time;
 	int				sleep_time;
 	int				must_eat;
+	int				cycles;
 	int				*already_ate;
 }				t_ph;
 
@@ -51,14 +52,15 @@ typedef struct s_lst
 	int				sleep_time;
 	int				must_eat;
 	int				already_ate;
+	int				cycles;
 	t_ph			*ph;
 }				t_lst;
 
-//size_t		ft_strlen(const char *s);
 void		free_mut_array(t_lst *data, int free_numb);
 int			ft_clearing(t_lst *data, int error_flag);
 
 int			ft_parser(int ac, char **av, t_lst *data);
+void		ft_define_cycles_numb(t_lst *data);
 
 void		ft_monitor_death(t_lst *data);
 void		ft_initial_time(t_lst *data);

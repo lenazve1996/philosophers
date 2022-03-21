@@ -6,31 +6,18 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/18 19:33:40 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/21 19:13:24 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_define_cycles_numb(t_ph *ph)
-{
-	int	cycles;
-
-	if (ph->must_eat != -1)
-		cycles = ph->must_eat;
-	else
-		cycles = 1;
-	return (cycles);
-}
-
 void	*ft_actions(void *philosopher)
 {
 	t_ph				*ph;
-	int					cycles;
 
 	ph = (t_ph *)philosopher;
-	cycles = ft_define_cycles_numb(ph);
-	while (cycles)
+	while (ph->cycles)
 	{
 		ft_take_forks(ph);
 		ft_eat(ph);
@@ -38,7 +25,7 @@ void	*ft_actions(void *philosopher)
 		ft_sleep(ph);
 		ft_think(ph);
 		if (ph->must_eat != -1)
-			cycles--;
+			ph->cycles--;
 	}
 	return (NULL);
 }
@@ -66,6 +53,7 @@ void	ft_data_for_philo(t_lst *data)
 
 	id = 0;
 	data->already_ate = 0;
+	ft_define_cycles_numb(data);
 	while (id < data->numb)
 	{
 		data->ph[id].id = id;
@@ -79,6 +67,7 @@ void	ft_data_for_philo(t_lst *data)
 		data->ph[id].already_ate = &data->already_ate;
 		data->ph[id].sleep_time = data->sleep_time;
 		data->ph[id].must_eat = data->must_eat;
+		data->ph[id].cycles = data->cycles;
 		data->ph[id].left_fork = &data->mut[id];
 		if (id + 1 != data->numb)
 			data->ph[id].right_fork = &data->mut[id + 1];

@@ -6,11 +6,19 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:08:48 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/18 19:34:13 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/21 19:09:17 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+void	ft_define_cycles_numb(t_lst *data)
+{
+	if (data->must_eat != -1)
+		data->cycles = data->must_eat;
+	else
+		data->cycles = 1;
+}
 
 static int	ft_check_characters(int ac, char **av)
 {
