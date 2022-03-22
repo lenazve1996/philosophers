@@ -4,7 +4,7 @@ FLAGS		= -Wall -Wextra -Werror -g
 SRC			= ../philo/libft/ft_atoi.c ../philo/libft/ft_strlen.c \
 				../philo/libft/ft_isdigit_orsign.c \
 				../philo/libft/ft_putstr_ret.c ../philo/parser.c \
-				../philo/time.c main_bonus.c actions_bonus.c
+				../philo/time.c main_bonus.c actions_bonus.c monitoring.c
 OBJ			= $(SRC:.c=.o)
 D_FILES 	= $(SRC:.c=.d)
 

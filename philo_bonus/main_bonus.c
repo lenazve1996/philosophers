@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/21 19:37:05 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/22 21:24:00 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,15 +66,14 @@
 //	return (0);
 //}
 
-static int	ft_creation(t_lst *data)
+static int	ft_create(t_lst *data)
 {
 	int				n;
-	//pthread_t		thread;
+	pthread_t		thread;
 	sem_t			*semaphore;
 	sem_t			*message;
 	int				status;
-	long long		*ph;
-	//int				r;
+	int				r;
 	pid_t			pid;
 	
 	//n = 0;
@@ -84,8 +83,8 @@ static int	ft_creation(t_lst *data)
 	//	semaphore[n] = sem_open(name, O_CREAT);
 	//	n++;
 	//}
-	ph = (long long *)malloc(sizeof(long long) * data->numb);
-	semaphore = sem_open("semaphore", O_CREAT | O_EXCL, 0644, 1);
+	data->last_meal = (long long *)malloc(sizeof(long long) * data->numb);
+	semaphore = sem_open("semaphore", O_CREAT | O_EXCL, 0644, data->numb / 2);
 	if (semaphore == SEM_FAILED)
 	{
 		perror("");
@@ -99,8 +98,16 @@ static int	ft_creation(t_lst *data)
 		return (ft_putstr_ret("Error: sem_open2 failed\n", 2));
 	}
 	sem_unlink("message");
-	n = 0;
 	ft_initial_time(data);
+	data->cur_time = (long long *)malloc (sizeof(long long));
+	*data->cur_time = data->zero_time;
+	n = 0;
+	while (n < data->numb)
+	{
+		data->last_meal[n++] = data->zero_time;
+	}
+	ft_define_cycles_numb(data);
+	n = 0;
 	while (n < data->numb)
 	{
 		pid = fork();
@@ -112,19 +119,25 @@ static int	ft_creation(t_lst *data)
 		}
 		if (pid == 0)
 		{
-			int	k;
 			int	cycles;
+			//int	last_meal;
 
-			k = 0;
-			ft_define_cycles_numb(data);
 			cycles = data->cycles;
+			//last_meal = data->zero_time;
+			//printf("cycles %d\n", cycles);
+			//printf("data->cycles %d\n", data->cycles);
+			r = pthread_create(&thread, NULL, &ft_monitoring, data);
+			if (r != 0)
+			{			
+				ft_putstr_ret("pthread_create failed\n", 2);						
+				return (1);		
+			}
 			while (cycles)
 			{
 				sem_wait(semaphore);
-				printf("Child here\n");
-				sleep(1);
+				//printf("Child here\n");
 				ft_ph_take_forks(data, n, message);
-				ft_eating(data, n, message, ph);
+				ft_eating(data, n, message);
 				//ft_ph_put_forks(data, n, message);
 				sem_post(semaphore);
 				ft_sleeping(data, n, message);
@@ -136,12 +149,13 @@ static int	ft_creation(t_lst *data)
 		}
 		n++;
 	}
-	//r = pthread_create(&thread, NULL, &ft_monitoring, &data);
-	//	if (r != 0)
-	//	{
-	//		ft_putstr_ret("pthread_create failed\n", 2);
-	//		return (1);
-	//	}
+	//usleep(1);
+	//r = pthread_create(&thread, NULL, &ft_monitoring, data);
+	//if (r != 0)
+	//{			
+	//	ft_putstr_ret("pthread_create failed\n", 2);
+	//	return (1);		
+	//}
 	n = 0;
 	while (n < data->numb)
 	{
@@ -166,7 +180,7 @@ int	main(int argc, char **argv)
 		return (ft_putstr_ret("Error\n", 2));
 	}
 	printf("data->numb %d\n", data.numb);
-	ft_creation(&data);
+	ft_create(&data);
 	//{
 	//	return (ft_clearing(&data, 1)); 
 	//}
