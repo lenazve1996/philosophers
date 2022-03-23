@@ -6,164 +6,190 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/22 21:24:00 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/23 21:20:03 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-//static int	ft_initialize_mutexes(t_lst *data)
-//{
-//	int	id;
-
-//	id = 0;
-//	data->mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data->numb);
-//	if (data->mut == NULL)
-//		return (1);
-//	while (id < data->numb)
-//	{
-//		if (pthread_mutex_init(&data->mut[id], NULL) != 0)
-//		{
-//			free_mut_array(data, id);
-//			return (ft_putstr_ret("Error: Mutex init failed\n", 2));
-//		}
-//		id++;
-//	}
-//	if (pthread_mutex_init(&data->message, NULL) != 0)
-//	{
-//		free_mut_array(data, id);
-//		return (ft_putstr_ret("Error: Mutex init failed\n", 2));
-//	}
-//	return (0);
-//}
-
-//static int	ft_create_threads(t_lst *data)
-//{
-//	ft_initial_time(data);
-//	ft_data_for_philo(data);
-//	data->already_ate = 0;
-//	if (ft_run_threads(0, data) == 1)
-//		return (1);
-//	usleep(100);
-//	if (ft_run_threads(1, data) == 1)
-//		return (1);
-//	return (0);
-//}
-
-//static int	ft_detach_threads(t_lst *data)
-//{
-//	int	id;
-
-//	id = 0;
-//	while (id < data->numb)
-//	{
-//		if (pthread_detach(data->philos[id]) != 0)
-//		{
-//			return (ft_putstr_ret("Error: pthread_detach failed\n", 2));
-//		}
-//		id++;
-//	}
-//	return (0);
-//}
-
-static int	ft_create(t_lst *data)
+void	ft_initial_time(t_lst *data)
 {
-	int				n;
-	pthread_t		thread;
-	sem_t			*semaphore;
-	sem_t			*message;
-	int				status;
-	int				r;
-	pid_t			pid;
-	
-	//n = 0;
-	//semaphore = malloc(data->numb * (sem_t *))
-	//while (n < data->numb)
-	//{
-	//	semaphore[n] = sem_open(name, O_CREAT);
-	//	n++;
-	//}
-	data->last_meal = (long long *)malloc(sizeof(long long) * data->numb);
-	semaphore = sem_open("semaphore", O_CREAT | O_EXCL, 0644, data->numb / 2);
-	if (semaphore == SEM_FAILED)
-	{
-		perror("");
-		return (ft_putstr_ret("Error: sem_open1 failed\n", 2));
-	}
-	sem_unlink("semaphore");
-	message = sem_open("message", O_CREAT | O_EXCL, 0644, 1);
-	if (message == SEM_FAILED)
-	{
-		perror("");
-		return (ft_putstr_ret("Error: sem_open2 failed\n", 2));
-	}
-	sem_unlink("message");
-	ft_initial_time(data);
-	data->cur_time = (long long *)malloc (sizeof(long long));
+	int	n;
+
+	n = 0;
+	data->zero_time = find_current_time();
 	*data->cur_time = data->zero_time;
 	n = 0;
 	while (n < data->numb)
 	{
 		data->last_meal[n++] = data->zero_time;
 	}
+}
+
+void	ft_close_semaphores(t_lst *data)
+{
+	sem_close(data->forks);
+	sem_close(data->messages);
+}
+
+void	ft_cleaning(t_lst *data)
+{
+	ft_close_semaphores(data);
+	if (data->last_meal != NULL)
+		free(data->last_meal);
+	if (data->cur_time != NULL)
+		free(data->cur_time);
+	if (data->children_pids != NULL)
+		free(data->children_pids);
+}
+
+int	ft_create_semaphores(t_lst *data)
+{
+	data->forks = sem_open("forks", O_CREAT | O_EXCL, 0644, data->numb);
+	if (data->forks == SEM_FAILED)
+	{
+		perror("");
+		return (ft_putstr_ret("Error: sem_open1 failed\n", 2));
+	}
+	sem_unlink("forks");
+	data->messages = sem_open("messages", O_CREAT | O_EXCL, 0644, 1);
+	if (data->messages == SEM_FAILED)
+	{
+		sem_close(data->forks);
+		perror("");
+		return (ft_putstr_ret("Error: sem_open2 failed\n", 2));
+	}
+	sem_unlink("messages");
+	return (0);
+}
+
+int	ft_allocate_memory(t_lst *data)
+{
+	data->last_meal = (long long *)malloc(sizeof(long long) * data->numb);
+	if (data->last_meal == NULL)
+	{
+		return (ft_putstr_ret("Error: malloc failed\n", 2));
+	}
+	data->cur_time = (long long *)malloc(sizeof(long long));
+	if (data->cur_time == NULL)
+	{
+		return (ft_putstr_ret("Error: malloc failed\n", 2));
+	}
+	data->children_pids = (int *)malloc(sizeof(int) * data->numb);
+	if (data->children_pids == NULL)
+	{
+		return (ft_putstr_ret("Error: malloc failed\n", 2));
+	}
+	return (0);
+}
+
+int	ft_fill_all_data(t_lst *data)
+{
+	int	n;
+	
+	if (ft_create_semaphores(data) == 1)
+		return (1);
+	if (ft_allocate_memory(data) == 1)
+	{
+		ft_cleaning(data);
+		return (1);
+	}
+	ft_initial_time(data);
+	//*data->cur_time = data->zero_time;
+	//n = 0;
+	//while (n < data->numb)
+	//{
+	//	data->last_meal[n++] = data->zero_time;
+	//}
 	ft_define_cycles_numb(data);
+	return (0);
+}
+
+void	ft_actions(t_lst *data)
+{
+	ft_ph_take_forks(data);
+	ft_eating(data);
+	ft_ph_put_forks(data);
+	ft_sleeping(data);
+	ft_thinking(data);
+}
+
+int	ft_create_philos(t_lst *data)
+{
+	int				n;
+	int				cycles;
+	pthread_t		thread;
+	pid_t			pid;
+	
 	n = 0;
 	while (n < data->numb)
 	{
 		pid = fork();
 		if (pid == -1)
 		{
-			sem_unlink("semaphore");
-			sem_close(semaphore);
 			return (ft_putstr_ret("Error: fork failed\n", 2));
 		}
 		if (pid == 0)
 		{
-			int	cycles;
-			//int	last_meal;
-
 			cycles = data->cycles;
-			//last_meal = data->zero_time;
-			//printf("cycles %d\n", cycles);
-			//printf("data->cycles %d\n", data->cycles);
-			r = pthread_create(&thread, NULL, &ft_monitoring, data);
-			if (r != 0)
-			{			
-				ft_putstr_ret("pthread_create failed\n", 2);						
-				return (1);		
-			}
+			data->id = n;
+			if (pthread_create(&thread, NULL, &ft_monitoring, data) != 0)		
+				return (ft_putstr_ret("pthread_create failed\n", 2));
 			while (cycles)
 			{
-				sem_wait(semaphore);
-				//printf("Child here\n");
-				ft_ph_take_forks(data, n, message);
-				ft_eating(data, n, message);
-				//ft_ph_put_forks(data, n, message);
-				sem_post(semaphore);
-				ft_sleeping(data, n, message);
-				ft_thinking(data, n, message);
+				ft_actions(data);
 				if (data->must_eat != -1)
 					cycles--;
 			}
 			exit(EXIT_SUCCESS);
 		}
+		data->children_pids[n] = pid;
 		n++;
 	}
-	//usleep(1);
-	//r = pthread_create(&thread, NULL, &ft_monitoring, data);
-	//if (r != 0)
-	//{			
-	//	ft_putstr_ret("pthread_create failed\n", 2);
-	//	return (1);		
-	//}
+	return (0);
+}
+
+void	ft_kill_all_philos(t_lst *data)
+{		
+	int	n;
+	
+	n = 0;
+	while (n < data->numb)
+	{
+		kill(data->children_pids[n], SIGTERM);
+		n++;
+	}
+}
+
+void	ft_wait_philos(t_lst *data)
+{
+	int				n;
+	int				status;
+	
 	n = 0;
 	while (n < data->numb)
 	{
 		wait(&status);
+		if (status == 768)
+		{
+			ft_kill_all_philos(data);
+			return ;
+		}
 		n++;
 	}
-	sem_close(semaphore);
-	sem_close(message);
+}
+
+static int	ft_creation(t_lst *data)
+{
+	int				n;
+
+	if (ft_create_philos(data) == 1)
+	{
+		ft_cleaning(data);
+		return (1);
+	}
+	ft_wait_philos(data);
+	ft_cleaning(data);
 	return (0);
 }
 
@@ -179,14 +205,12 @@ int	main(int argc, char **argv)
 	{
 		return (ft_putstr_ret("Error\n", 2));
 	}
-	printf("data->numb %d\n", data.numb);
-	ft_create(&data);
-	//{
-	//	return (ft_clearing(&data, 1)); 
-	//}
-	//else
-	//{
-	//	return (ft_clearing(&data, 0));
-	//}
-	return (0);
+	if (ft_fill_all_data(&data) == 1)
+	{
+		return (1);
+	}
+	if (ft_creation(&data) == 1)
+		return (1);
+	else
+		return (0);
 }
