@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:11:18 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/18 19:13:01 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/24 20:40:26 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ static int	ft_check_death(t_lst *data, t_ph ph)
 	{
 		pthread_mutex_lock(&data->message);
 		printf("%lld %d died\n", data->time - data->zero_time, ph.id + 1);
-		pthread_mutex_unlock(&data->message);
 		return (1);
 	}
 	return (0);
@@ -26,10 +25,12 @@ static int	ft_check_death(t_lst *data, t_ph ph)
 
 static int	ft_check_meals_numb(t_lst *data, int times_to_eat)
 {
+	pthread_mutex_lock(&data->meals);
 	if (data->must_eat != -1 && data->already_ate == times_to_eat)
 	{
 		return (1);
 	}
+	pthread_mutex_unlock(&data->meals);
 	return (0);
 }
 

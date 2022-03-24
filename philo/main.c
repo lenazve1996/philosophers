@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/18 19:29:11 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/24 21:01:00 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,11 @@ static int	ft_initialize_mutexes(t_lst *data)
 		id++;
 	}
 	if (pthread_mutex_init(&data->message, NULL) != 0)
+	{
+		free_mut_array(data, id);
+		return (ft_putstr_ret("Error: Mutex init failed\n", 2));
+	}
+	if (pthread_mutex_init(&data->meals, NULL) != 0)
 	{
 		free_mut_array(data, id);
 		return (ft_putstr_ret("Error: Mutex init failed\n", 2));

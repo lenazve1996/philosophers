@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:30:07 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/21 19:12:12 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/24 20:41:25 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@ void	ft_eat(t_ph *ph)
 	pthread_mutex_unlock(ph->message);
 	my_usleep(ph->eat_time);
 	ph->last_eat_timestamp = *ph->time;
-	pthread_mutex_lock(ph->message);
+	pthread_mutex_lock(ph->meals);
 	*ph->already_ate = *ph->already_ate + 1;
-	pthread_mutex_unlock(ph->message);
+	pthread_mutex_unlock(ph->meals);
 }
 
 void	ft_sleep(t_ph *ph)

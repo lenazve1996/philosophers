@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/21 19:13:24 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/24 20:41:48 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ void	ft_data_for_philo(t_lst *data)
 		data->ph[id].id = id;
 		data->ph[id].numb = data->numb;
 		data->ph[id].message = &data->message;
+		data->ph[id].meals = &data->meals;
 		data->ph[id].last_dinner = data->zero_time;
 		data->ph[id].last_eat_timestamp = data->zero_time;
 		data->ph[id].die_time = data->die_time;

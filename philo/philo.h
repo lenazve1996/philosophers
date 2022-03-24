@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/21 19:09:48 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/24 20:37:34 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef struct s_ph
 	pthread_mutex_t	*message;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
+	pthread_mutex_t	*meals;
 	long long		zero_time;
 	long long		last_dinner;
 	long long		last_eat_timestamp;
@@ -44,6 +45,7 @@ typedef struct s_lst
 	int				numb;
 	pthread_t		*philos;
 	pthread_mutex_t	*mut;
+	pthread_mutex_t	meals;
 	pthread_mutex_t	message;
 	long long		zero_time;
 	long long		time;
