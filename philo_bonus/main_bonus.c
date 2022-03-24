@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/23 21:20:03 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/24 16:39:47 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,6 @@ int	ft_allocate_memory(t_lst *data)
 
 int	ft_fill_all_data(t_lst *data)
 {
-	int	n;
-	
 	if (ft_create_semaphores(data) == 1)
 		return (1);
 	if (ft_allocate_memory(data) == 1)
@@ -94,14 +92,8 @@ int	ft_fill_all_data(t_lst *data)
 		ft_cleaning(data);
 		return (1);
 	}
-	ft_initial_time(data);
-	//*data->cur_time = data->zero_time;
-	//n = 0;
-	//while (n < data->numb)
-	//{
-	//	data->last_meal[n++] = data->zero_time;
-	//}
 	ft_define_cycles_numb(data);
+	ft_initial_time(data);
 	return (0);
 }
 
@@ -114,11 +106,25 @@ void	ft_actions(t_lst *data)
 	ft_thinking(data);
 }
 
+int	ft_create_thread(t_lst *data)
+{
+	pthread_t	thread;
+	
+	if (pthread_create(&thread, NULL, &ft_monitoring, data) != 0)
+	{	
+		return (ft_putstr_ret("pthread_create failed\n", 2));
+	}
+	if (pthread_detach(thread) != 0)
+	{
+		return (ft_putstr_ret("Error: pthread_detach failed\n", 2));
+	}
+	return (0);
+}
+
 int	ft_create_philos(t_lst *data)
 {
 	int				n;
 	int				cycles;
-	pthread_t		thread;
 	pid_t			pid;
 	
 	n = 0;
@@ -133,8 +139,7 @@ int	ft_create_philos(t_lst *data)
 		{
 			cycles = data->cycles;
 			data->id = n;
-			if (pthread_create(&thread, NULL, &ft_monitoring, data) != 0)		
-				return (ft_putstr_ret("pthread_create failed\n", 2));
+			ft_create_thread(data);
 			while (cycles)
 			{
 				ft_actions(data);
@@ -181,8 +186,6 @@ void	ft_wait_philos(t_lst *data)
 
 static int	ft_creation(t_lst *data)
 {
-	int				n;
-
 	if (ft_create_philos(data) == 1)
 	{
 		ft_cleaning(data);
@@ -209,8 +212,5 @@ int	main(int argc, char **argv)
 	{
 		return (1);
 	}
-	if (ft_creation(&data) == 1)
-		return (1);
-	else
-		return (0);
+	return (ft_creation(&data));
 }

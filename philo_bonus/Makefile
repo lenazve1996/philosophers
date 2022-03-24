@@ -1,10 +1,10 @@
 NAME		= philo_bonus
 CC			= gcc
-FLAGS		= -Wall -Wextra -Werror -g 
+FLAGS		= -Wall -Wextra -Werror
 SRC			= ../philo/libft/ft_atoi.c ../philo/libft/ft_strlen.c \
 				../philo/libft/ft_isdigit_orsign.c \
-				../philo/libft/ft_putstr_ret.c ../philo/parser.c \
-				../philo/time.c main_bonus.c actions_bonus.c monitoring.c
+				../philo/libft/ft_putstr_ret.c \
+				time_bonus.c main_bonus.c actions_bonus.c monitoring_bonus.c parser_bonus.c
 OBJ			= $(SRC:.c=.o)
 D_FILES 	= $(SRC:.c=.d)
 
@@ -17,7 +17,7 @@ $(NAME) : $(OBJ)
 		$(CC) $(FLAGS) -c $? -o $@ -MD
 
 clean :
-		rm -f $(OBJ) #$(OBJ_BONUS)
+		rm -f $(OBJ) $(OBJ_BONUS)
 		rm -f $(D_FILES)
 
 fclean : clean
