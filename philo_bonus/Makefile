@@ -26,4 +26,4 @@ fclean : clean
 
 re : fclean all
 
-.PHONY: all clean fclean re bonus libmake
+.PHONY: all clean fclean re
