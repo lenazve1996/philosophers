@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:30:07 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/25 11:11:01 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/25 13:10:10 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	ft_eat(t_ph *ph)
 void	ft_sleep(t_ph *ph)
 {
 	long long	i;
-	
+
 	pthread_mutex_lock(ph->message);
 	printf("%lld %d is sleeping\n", *ph->time - ph->zero_time, ph->id + 1);
 	i = *ph->time - ph->zero_time;
@@ -44,16 +44,8 @@ void	ft_sleep(t_ph *ph)
 
 void	ft_think(t_ph *ph)
 {
-	//long long	i; //del
-
 	pthread_mutex_lock(ph->message);
 	printf("%lld %d is thinking\n", *ph->time - ph->zero_time, ph->id + 1);
-	//i = *ph->time - ph->zero_time;
-	//if (i < 0)
-	//{
-	//	printf("*ph->time - %lld\n", *ph->time);
-	//	printf("ph->zero_time - %lld\n", ph->zero_time);
-	//}
 	pthread_mutex_unlock(ph->message);
 }
 

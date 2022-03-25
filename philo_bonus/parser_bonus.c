@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:08:48 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/24 16:13:54 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/25 13:35:58 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,5 +65,43 @@ int	ft_parser(int ac, char **av, t_lst *data)
 	if (data->numb <= 0 || data->die_time < 0 || data->eat_time < 0 || \
 	data->sleep_time < 0)
 		return (1);
+	return (0);
+}
+
+int	ft_create_semaphores(t_lst *data)
+{
+	data->forks = sem_open("forks", O_CREAT | O_EXCL, 0644, data->numb);
+	if (data->forks == SEM_FAILED)
+	{
+		return (ft_putstr_ret("Error: sem_open1 failed\n", 2));
+	}
+	sem_unlink("forks");
+	data->messages = sem_open("messages", O_CREAT | O_EXCL, 0644, 1);
+	if (data->messages == SEM_FAILED)
+	{
+		sem_close(data->forks);
+		return (ft_putstr_ret("Error: sem_open2 failed\n", 2));
+	}
+	sem_unlink("messages");
+	return (0);
+}
+
+int	ft_allocate_memory(t_lst *data)
+{
+	data->last_meal = (long long *)malloc(sizeof(long long) * data->numb);
+	if (data->last_meal == NULL)
+	{
+		return (ft_putstr_ret("Error: malloc failed\n", 2));
+	}
+	data->cur_time = (long long *)malloc(sizeof(long long));
+	if (data->cur_time == NULL)
+	{
+		return (ft_putstr_ret("Error: malloc failed\n", 2));
+	}
+	data->children_pids = (int *)malloc(sizeof(int) * data->numb);
+	if (data->children_pids == NULL)
+	{
+		return (ft_putstr_ret("Error: malloc failed\n", 2));
+	}
 	return (0);
 }

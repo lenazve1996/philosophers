@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/24 16:01:38 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/24 18:31:50 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,15 +43,16 @@ void		ft_sleeping(t_lst *data);
 void		ft_thinking(t_lst *data);
 void		ft_ph_take_forks(t_lst *data);
 void		*ft_monitoring(void *info);
+int			ft_create_thread(t_lst *data);
 void		ft_ph_put_forks(t_lst *data);
-
 long long	find_current_time(void);
 void		my_usleep(long long msec);
-
 void		ft_define_cycles_numb(t_lst *data);
-
-int	ft_parser(int ac, char **av, t_lst *data);
-
-//void	ft_ph_put_forks(t_lst *data, int n, sem_t *message);
+int			ft_parser(int ac, char **av, t_lst *data);
+void		ft_initial_time(t_lst *data);
+void		ft_cleaning(t_lst *data);
+void		ft_wait_philos(t_lst *data);
+int			ft_allocate_memory(t_lst *data);
+int			ft_create_semaphores(t_lst *data);
 
 #endif

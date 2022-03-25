@@ -6,13 +6,13 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/25 11:06:09 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/25 13:23:56 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*ft_actions(void *philosopher)
+static void	*ft_actions(void *philosopher)
 {
 	t_ph				*ph;
 
@@ -49,6 +49,14 @@ int	ft_run_threads(int id, t_lst *data)
 	return (0);
 }
 
+static void	ft_detect_rigth_fork(t_lst *data, int id)
+{
+	if (id + 1 != data->numb)
+		data->ph[id].right_fork = &data->mut[id + 1];
+	else if (id + 1 == data->numb)
+		data->ph[id].right_fork = &data->mut[0];
+}
+
 void	ft_data_for_philo(t_lst *data)
 {
 	int	id;
@@ -72,10 +80,7 @@ void	ft_data_for_philo(t_lst *data)
 		data->ph[id].must_eat = data->must_eat;
 		data->ph[id].cycles = data->cycles;
 		data->ph[id].left_fork = &data->mut[id];
-		if (id + 1 != data->numb)
-			data->ph[id].right_fork = &data->mut[id + 1];
-		else if (id + 1 == data->numb)
-			data->ph[id].right_fork = &data->mut[0];
+		ft_detect_rigth_fork(data, id);
 		data->ph[id].zero_time = data->zero_time;
 		id++;
 	}
