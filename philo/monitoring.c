@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:11:18 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/24 20:40:26 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/25 11:10:18 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ static int	ft_check_meals_numb(t_lst *data, int times_to_eat)
 	pthread_mutex_lock(&data->meals);
 	if (data->must_eat != -1 && data->already_ate == times_to_eat)
 	{
+		pthread_mutex_lock(&data->message);
 		return (1);
 	}
 	pthread_mutex_unlock(&data->meals);
@@ -45,7 +46,9 @@ void	ft_monitor_death(t_lst *data)
 		i = 0;
 		while (i < data->numb)
 		{
+			pthread_mutex_lock(&data->message);
 			data->time = find_current_time();
+			pthread_mutex_unlock(&data->message);
 			if (ft_check_meals_numb(data, times_to_eat) == 1)
 				return ;
 			if (ft_check_death(data, data->ph[i]) == 1)

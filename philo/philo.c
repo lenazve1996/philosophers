@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/24 20:41:48 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/25 11:06:09 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,12 @@ void	*ft_actions(void *philosopher)
 		ft_take_forks(ph);
 		ft_eat(ph);
 		ft_put_forks(ph);
-		ft_sleep(ph);
-		ft_think(ph);
 		if (ph->must_eat != -1)
 			ph->cycles--;
+		if (ph->cycles == 0)
+			return (NULL);
+		ft_sleep(ph);
+		ft_think(ph);
 	}
 	return (NULL);
 }
