@@ -1,7 +1,7 @@
 NAME		= philo
 BONUS		= philo_bonus
 CC			= gcc
-FLAGS		= -Wall -Wextra -Werror
+FLAGS		= -Wall -Wextra -Werror -g -fsanitize=thread
 SRC			= libft/ft_atoi.c libft/ft_strlen.c libft/ft_isdigit_orsign.c \
 				libft/ft_putstr_ret.c philo.c cleaning.c parser.c monitoring.c \
 				main.c actions.c time.c

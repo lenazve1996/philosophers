@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/25 13:15:48 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/25 21:56:17 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,10 @@ static int	ft_initialize_mutexes(t_lst *data)
 	data->mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data->numb);
 	if (data->mut == NULL)
 		return (1);
+	data->message = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	if (data->message == NULL)
+		return (1);
+	printf("data->message %p\n", data->message);
 	while (id < data->numb)
 	{
 		if (pthread_mutex_init(&data->mut[id], NULL) != 0)
@@ -29,11 +33,7 @@ static int	ft_initialize_mutexes(t_lst *data)
 		}
 		id++;
 	}
-	if (pthread_mutex_init(&data->message, NULL) != 0)
-	{
-		return (ft_putstr_ret("Error: Mutex init failed\n", 2));
-	}
-	if (pthread_mutex_init(&data->meals, NULL) != 0)
+	if (pthread_mutex_init(data->message, NULL) != 0)
 	{
 		return (ft_putstr_ret("Error: Mutex init failed\n", 2));
 	}
@@ -83,7 +83,6 @@ static int	ft_creation(t_lst *data)
 		return (1);
 	if (ft_detach_threads(data) == 1)
 		return (1);
-	ft_monitor_death(data);
 	return (0);
 }
 
@@ -103,8 +102,10 @@ int	main(int argc, char **argv)
 	{
 		return (ft_clearing(&data, 1));
 	}
-	else
-	{
-		return (ft_clearing(&data, 0));
-	}
+	ft_monitor_death(&data);
+	return (0);
+	//else
+	//{
+	//	return (ft_clearing(&data, 0));
+	//}
 }

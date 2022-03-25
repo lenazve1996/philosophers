@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/25 16:18:05 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/25 19:19:23 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,25 @@
 static void	*ft_actions(void *philosopher)
 {
 	t_ph				*ph;
+	t_lst				*data;
 
 	ph = (t_ph *)philosopher;
+	data = (t_lst *)ph->main_data;
 	while (ph->cycles)
 	{
-		ft_take_forks(ph);
-		ft_eat(ph);
+		if (ft_take_forks(ph, data) == 1)
+			return (NULL);
+		if (ft_eat(ph, data) == 1)
+			return (NULL);
 		ft_put_forks(ph);
-		if (ph->must_eat != -1)
+		if (data->must_eat != -1)
 			ph->cycles--;
 		if (ph->cycles == 0)
 			return (NULL);
-		ft_sleep(ph);
-		ft_think(ph);
+		if (ft_sleep(ph, data) == 1)
+			return (NULL);
+		if (ft_think(ph, data) == 1)
+			return (NULL);
 	}
 	return (NULL);
 }
@@ -63,25 +69,16 @@ void	ft_data_for_philo(t_lst *data)
 
 	id = 0;
 	data->already_ate = 0;
+	data->end = 0;
 	ft_define_cycles_numb(data);
 	while (id < data->numb)
 	{
 		data->ph[id].id = id;
-		data->ph[id].numb = data->numb;
-		data->ph[id].message = &data->message;
-		data->ph[id].meals = &data->meals;
 		data->ph[id].last_dinner = data->zero_time;
-		data->ph[id].last_eat_timestamp = data->zero_time;
-		data->ph[id].die_time = data->die_time;
-		data->ph[id].eat_time = data->eat_time;
-		data->ph[id].time = &data->time;
-		data->ph[id].already_ate = &data->already_ate;
-		data->ph[id].sleep_time = data->sleep_time;
-		data->ph[id].must_eat = data->must_eat;
+		data->ph[id].main_data = data;
 		data->ph[id].cycles = data->cycles;
 		data->ph[id].left_fork = &data->mut[id];
 		ft_detect_rigth_fork(data, id);
-		data->ph[id].zero_time = data->zero_time;
 		id++;
 	}
 }
