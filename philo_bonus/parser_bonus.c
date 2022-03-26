@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:08:48 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/25 13:35:58 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/26 19:01:56 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,11 +88,11 @@ int	ft_create_semaphores(t_lst *data)
 
 int	ft_allocate_memory(t_lst *data)
 {
-	data->last_meal = (long long *)malloc(sizeof(long long) * data->numb);
-	if (data->last_meal == NULL)
-	{
-		return (ft_putstr_ret("Error: malloc failed\n", 2));
-	}
+	//data->last_meal = (long long)malloc(sizeof(long long));
+	//if (data->last_meal == NULL)
+	//{
+	//	return (ft_putstr_ret("Error: malloc failed\n", 2));
+	//}
 	data->cur_time = (long long *)malloc(sizeof(long long));
 	if (data->cur_time == NULL)
 	{

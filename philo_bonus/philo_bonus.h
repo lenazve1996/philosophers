@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/24 18:31:50 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/26 20:11:16 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ typedef struct s_lst
 	int				*children_pids;
 	long long		zero_time;
 	long long		*cur_time;
-	long long		*last_meal;
+	long long		last_meal;
 	int				die_time;
 	int				eat_time;
 	int				sleep_time;
