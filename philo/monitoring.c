@@ -6,20 +6,21 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:11:18 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/25 21:55:06 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/26 18:36:22 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	ft_check_death(t_lst *data, t_ph ph)
+int	ft_check_death(t_lst *data, t_ph ph)
 {
 	pthread_mutex_lock(data->message);
 	if (data->time - ph.last_dinner > data->die_time)
 	{
+		data->philo_died = 1;
 		printf("%lld %d died\n", data->time - data->zero_time, ph.id + 1);
-		return (ft_clearing(data, 1));
-		//exit (1);
+		pthread_mutex_unlock(data->message);
+		return (1);
 	}
 	pthread_mutex_unlock(data->message);
 	return (0);
@@ -36,10 +37,12 @@ static int	ft_check_meals_numb(t_lst *data)
 	return (0);
 }
 
-void	ft_monitor_death(t_lst *data)
+void	ft_monitoring(void *main_data)
 {
-	int	i;
+	t_lst	*data;
+	int		i;
 
+	data = (t_lst *)main_data;
 	while (1)
 	{
 		i = 0;
@@ -55,4 +58,20 @@ void	ft_monitor_death(t_lst *data)
 			i++;
 		}
 	}
+}
+
+int	ft_wait_threads(t_lst *data)
+{
+	int	id;
+
+	id = 0;
+	while (id < data->numb)
+	{
+		if (pthread_join(data->philos[id], NULL) != 0)
+		{
+			return (ft_putstr_ret("Error: pthread_join failed\n", 2));
+		}
+		id++;
+	}
+	return (0);
 }

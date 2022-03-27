@@ -6,11 +6,23 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/25 19:19:23 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/26 18:08:17 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+int	ft_scan_death(t_lst *data)
+{
+	pthread_mutex_lock(data->message);
+	if (data->philo_died == 1)
+	{
+		pthread_mutex_unlock(data->message);
+		return (1);
+	}
+	pthread_mutex_unlock(data->message);
+	return (0);
+}
 
 static void	*ft_actions(void *philosopher)
 {
@@ -23,17 +35,20 @@ static void	*ft_actions(void *philosopher)
 	{
 		if (ft_take_forks(ph, data) == 1)
 			return (NULL);
-		if (ft_eat(ph, data) == 1)
+		if (ft_scan_death(data) == 1)
 			return (NULL);
+		ft_eat(ph, data);
 		ft_put_forks(ph);
 		if (data->must_eat != -1)
 			ph->cycles--;
 		if (ph->cycles == 0)
 			return (NULL);
-		if (ft_sleep(ph, data) == 1)
+		if (ft_scan_death(data) == 1)
 			return (NULL);
-		if (ft_think(ph, data) == 1)
+		ft_sleep(ph, data);
+		if (ft_scan_death(data) == 1)
 			return (NULL);
+		ft_think(ph, data);
 	}
 	return (NULL);
 }
@@ -70,6 +85,7 @@ void	ft_data_for_philo(t_lst *data)
 	id = 0;
 	data->already_ate = 0;
 	data->end = 0;
+	data->philo_died = 0;
 	ft_define_cycles_numb(data);
 	while (id < data->numb)
 	{
