@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:08:48 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 19:01:56 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/30 17:56:52 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,29 +70,35 @@ int	ft_parser(int ac, char **av, t_lst *data)
 
 int	ft_create_semaphores(t_lst *data)
 {
-	data->forks = sem_open("forks", O_CREAT | O_EXCL, 0644, data->numb);
+	//sem_unlink("forks");
+	//sem_unlink("messages");
+	//sem_unlink("general");
+	data->forks = sem_open("forks", O_CREAT, S_IRWXU, data->numb);
 	if (data->forks == SEM_FAILED)
 	{
-		return (ft_putstr_ret("Error: sem_open1 failed\n", 2));
+		return (ft_putstr_ret("Error: sem_open failed\n", 2));
 	}
 	sem_unlink("forks");
-	data->messages = sem_open("messages", O_CREAT | O_EXCL, 0644, 1);
+	data->messages = sem_open("messages", O_CREAT, S_IRWXU, 1);
 	if (data->messages == SEM_FAILED)
 	{
 		sem_close(data->forks);
-		return (ft_putstr_ret("Error: sem_open2 failed\n", 2));
+		return (ft_putstr_ret("Error: sem_open failed\n", 2));
 	}
 	sem_unlink("messages");
+	data->general = sem_open("general", O_CREAT, S_IRWXU, 1);
+	if (data->general== SEM_FAILED)
+	{
+		sem_close(data->forks);
+		sem_close(data->messages);
+		return (ft_putstr_ret("Error: sem_open failed\n", 2));
+	}
+	sem_unlink("general");
 	return (0);
 }
 
 int	ft_allocate_memory(t_lst *data)
 {
-	//data->last_meal = (long long)malloc(sizeof(long long));
-	//if (data->last_meal == NULL)
-	//{
-	//	return (ft_putstr_ret("Error: malloc failed\n", 2));
-	//}
 	data->cur_time = (long long *)malloc(sizeof(long long));
 	if (data->cur_time == NULL)
 	{

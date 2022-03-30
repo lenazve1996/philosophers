@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 20:11:16 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/30 17:02:00 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_lst
 	int				id;
 	sem_t			*messages;
 	sem_t			*forks;
+	sem_t			*general;
 	int				*children_pids;
 	long long		zero_time;
 	long long		*cur_time;

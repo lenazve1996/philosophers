@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 20:18:09 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/30 18:12:46 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,10 @@ int	ft_create_philos(t_lst *data)
 {
 	int				n;
 	pid_t			pid;
+	long long		start_time;
 
 	n = 0;
+	ft_initial_time(data);
 	while (n < data->numb)
 	{
 		pid = fork();
@@ -49,12 +51,25 @@ int	ft_create_philos(t_lst *data)
 		if (pid == 0)
 		{
 			data->id = n;
+			start_time = find_current_time();
+			while (start_time < data->zero_time + 200)
+			{
+				usleep(1);
+				start_time = find_current_time();
+			}
 			ft_create_thread(data);
+			ft_initial_time(data);
 			while (data->cycles)
 			{
 				ft_actions(data);
 				if (data->must_eat != -1)
 					data->cycles--;
+				printf("data->cycles for philo %d -> %d\n", data->id + 1, data->cycles);
+				if (data->cycles == 0)
+				{
+					printf("Philo %d exited\n", data->id + 1);
+					exit(EXIT_SUCCESS);
+				}
 			}
 			exit(EXIT_SUCCESS);
 		}

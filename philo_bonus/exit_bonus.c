@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/24 16:51:33 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 19:29:11 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/30 18:14:53 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@ void	ft_close_semaphores(t_lst *data)
 {
 	sem_close(data->forks);
 	sem_close(data->messages);
+	sem_close(data->general);
+	//sem_unlink("general");
+	//sem_unlink("forks");
+	//sem_unlink("messages");
 }
 
 void	ft_cleaning(t_lst *data)
@@ -50,6 +54,7 @@ void	ft_wait_philos(t_lst *data)
 	while (n < data->numb)
 	{
 		wait(&status);
+		printf("philo returned to parent");
 		if (status == 768)
 		{
 			ft_kill_all_philos(data);

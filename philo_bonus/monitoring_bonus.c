@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 19:24:01 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 20:12:29 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/30 17:50:21 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,19 @@
 
 static void	ft_check_death(t_lst *data)
 {
+	//printf("%p data->messages\n", data->messages);
+	sem_wait(data->messages);
 	if (*data->cur_time - data->last_meal > data->die_time)
 	{
-		printf("*data->cur_time %lld\n", *data->cur_time);
-		printf("data->last_meal %lld\n", data->last_meal);
-		printf("data->die_time %d\n", data->die_time);
-		sem_wait(data->messages);
+		//printf("*data->cur_time %lld\n", *data->cur_time);
+		//printf("data->last_meal %lld\n", data->last_meal);
+		//printf("data->die_time %d\n", data->die_time);
+		//printf("%d value of sem_wait\n", sem_wait(data->messages));
 		printf("%lld %d died\n", *data->cur_time - data->zero_time, data->id + 1);
 		exit (3);
 	}
+	sem_post(data->messages);
 }
-
-		//printf("*data->cur_time %lld\n", *data->cur_time);
-		//printf("data->last_meal[id] %lld\n", data->last_meal[id]);
-		//printf("data->die_time %d\n", data->die_time);
 
 void	*ft_monitoring(void *info)
 {
@@ -56,5 +55,6 @@ int	ft_create_thread(t_lst *data)
 	{
 		return (ft_putstr_ret("Error: pthread_detach failed\n", 2));
 	}
+	//ft_initial_time(data);
 	return (0);
 }
