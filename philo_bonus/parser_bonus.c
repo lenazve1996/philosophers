@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:08:48 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/30 17:56:52 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/31 13:43:26 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,6 @@ int	ft_parser(int ac, char **av, t_lst *data)
 
 int	ft_create_semaphores(t_lst *data)
 {
-	//sem_unlink("forks");
-	//sem_unlink("messages");
-	//sem_unlink("general");
 	data->forks = sem_open("forks", O_CREAT, S_IRWXU, data->numb);
 	if (data->forks == SEM_FAILED)
 	{
@@ -87,7 +84,7 @@ int	ft_create_semaphores(t_lst *data)
 	}
 	sem_unlink("messages");
 	data->general = sem_open("general", O_CREAT, S_IRWXU, 1);
-	if (data->general== SEM_FAILED)
+	if (data->general == SEM_FAILED)
 	{
 		sem_close(data->forks);
 		sem_close(data->messages);
@@ -99,11 +96,6 @@ int	ft_create_semaphores(t_lst *data)
 
 int	ft_allocate_memory(t_lst *data)
 {
-	data->cur_time = (long long *)malloc(sizeof(long long));
-	if (data->cur_time == NULL)
-	{
-		return (ft_putstr_ret("Error: malloc failed\n", 2));
-	}
 	data->children_pids = (int *)malloc(sizeof(int) * data->numb);
 	if (data->children_pids == NULL)
 	{

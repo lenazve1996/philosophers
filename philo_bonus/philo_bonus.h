@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/30 17:02:00 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/03/31 13:48:32 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ typedef struct s_lst
 	sem_t			*general;
 	int				*children_pids;
 	long long		zero_time;
-	long long		*cur_time;
 	long long		last_meal;
 	int				die_time;
 	int				eat_time;
@@ -44,7 +43,7 @@ void		ft_sleeping(t_lst *data);
 void		ft_thinking(t_lst *data);
 void		ft_ph_take_forks(t_lst *data);
 void		*ft_monitoring(void *info);
-int			ft_create_thread(t_lst *data);
+int			ft_start_monitoring(t_lst *data);
 void		ft_ph_put_forks(t_lst *data);
 long long	find_current_time(void);
 void		my_usleep(long long msec);
