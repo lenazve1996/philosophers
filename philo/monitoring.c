@@ -6,11 +6,23 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:11:18 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 18:36:22 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/01 12:11:35 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+int	ft_scan_death(t_lst *data)
+{
+	pthread_mutex_lock(data->message);
+	if (data->philo_died == 1)
+	{
+		pthread_mutex_unlock(data->message);
+		return (1);
+	}
+	pthread_mutex_unlock(data->message);
+	return (0);
+}
 
 int	ft_check_death(t_lst *data, t_ph ph)
 {

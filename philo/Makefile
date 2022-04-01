@@ -1,6 +1,5 @@
 NAME		= philo
-BONUS		= philo_bonus
-CC			= gcc
+CC			= cc
 FLAGS		= -Wall -Wextra -Werror
 SRC			= libft/ft_atoi.c libft/ft_strlen.c libft/ft_isdigit_orsign.c \
 				libft/ft_putstr_ret.c philo.c cleaning.c parser.c monitoring.c \

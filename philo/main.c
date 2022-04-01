@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 17:59:47 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/01 13:10:32 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,22 +50,6 @@ static int	ft_create_threads(t_lst *data)
 	return (0);
 }
 
-//static int	ft_detach_threads(t_lst *data)
-//{
-//	int	id;
-
-//	id = 0;
-//	while (id < data->numb)
-//	{
-//		if (pthread_detach(data->philos[id]) != 0)
-//		{
-//			return (ft_putstr_ret("Error: pthread_detach failed\n", 2));
-//		}
-//		id++;
-//	}
-//	return (0);
-//}
-
 static int	ft_creation(t_lst *data)
 {
 	data->philos = (pthread_t *)malloc(sizeof(pthread_t) * data->numb);
@@ -89,6 +73,7 @@ int	main(int argc, char **argv)
 {
 	t_lst	data;
 
+	data = (t_lst){};
 	if (argc != 5 && argc != 6)
 	{
 		return (ft_putstr_ret("Error\n", 2));

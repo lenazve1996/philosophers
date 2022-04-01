@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 18:02:03 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/01 13:17:31 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
 # include <pthread.h>
 # include <stdlib.h>
 # include <sys/time.h>
+
+# define TAKE_FORK 1
+# define EAT 2
+# define SLEEP 3
+# define THINK 3
 
 typedef struct s_ph
 {
@@ -60,12 +65,13 @@ int			ft_run_threads(int id, t_lst *data);
 int			ft_wait_threads(t_lst *data);
 int			ft_scan_death(t_lst *data);
 int			ft_check_death(t_lst *data, t_ph ph);
-void		ft_eat(t_ph *ph, t_lst *data);
+int			ft_eat(t_ph *ph, t_lst *data);
 int			ft_sleep(t_ph *ph, t_lst *data);
 int			ft_think(t_ph *ph, t_lst *data);
 int			ft_take_forks(t_ph *ph, t_lst *data);
 void		ft_put_forks(t_ph *ph);
 void		my_usleep(long long msec);
 long long	find_current_time(void);
+int			ft_print_message(t_lst *data, t_ph *ph, int action);
 
 #endif
