@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/31 13:48:32 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/01 12:58:27 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,11 @@
 # include <sys/time.h> 
 # include <signal.h>
 # include <semaphore.h>
+
+# define TAKE_FORK 1
+# define EAT 2
+# define SLEEP 3
+# define THINK 3
 
 typedef struct s_lst
 {
@@ -40,7 +45,6 @@ typedef struct s_lst
 
 void		ft_eating(t_lst *data);
 void		ft_sleeping(t_lst *data);
-void		ft_thinking(t_lst *data);
 void		ft_ph_take_forks(t_lst *data);
 void		*ft_monitoring(void *info);
 int			ft_start_monitoring(t_lst *data);
@@ -54,5 +58,6 @@ void		ft_cleaning(t_lst *data);
 void		ft_wait_philos(t_lst *data);
 int			ft_allocate_memory(t_lst *data);
 int			ft_create_semaphores(t_lst *data);
+void		ft_print_message(t_lst *data, int action);
 
 #endif

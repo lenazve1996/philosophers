@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/31 13:56:44 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/01 12:57:57 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	ft_actions(t_lst *data)
 		ft_eating(data);
 		ft_ph_put_forks(data);
 		ft_sleeping(data);
-		ft_thinking(data);
+		ft_print_message(data, THINK);
 		if (data->must_eat != -1)
 			data->cycles--;
 		if (data->cycles == 0)
@@ -57,12 +57,11 @@ void	ft_wait_other_philos(t_lst *data)
 
 int	ft_create_philos(t_lst *data)
 {
-	int				n;
 	pid_t			pid;
 
-	n = 0;
+	data->id = 0;
 	ft_initial_time(data);
-	while (n < data->numb)
+	while (data->id < data->numb)
 	{
 		pid = fork();
 		if (pid == -1)
@@ -72,14 +71,13 @@ int	ft_create_philos(t_lst *data)
 		}
 		if (pid == 0)
 		{
-			data->id = n;
 			ft_wait_other_philos(data);
+			ft_initial_time(data);
 			ft_start_monitoring(data);
 			ft_initial_time(data);
 			ft_actions(data);
 		}
-		data->children_pids[n] = pid;
-		n++;
+		data->children_pids[data->id++] = pid;
 	}
 	return (0);
 }
