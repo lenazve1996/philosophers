@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 19:24:01 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/31 13:48:03 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/27 20:40:29 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static void	ft_check_death(t_lst *data)
 	{
 		sem_wait(data->messages);
 		printf("%lld %d died\n", time - data->zero_time, data->id + 1);
-		exit (3);
+		exit (PHILO_DIED);
 	}
 }
 
@@ -52,5 +52,5 @@ int	ft_start_monitoring(t_lst *data)
 	{
 		return (ft_putstr_ret("Error: pthread_detach failed\n", 2));
 	}
-	return (0);
+	return (EXIT_SUCCESS);
 }

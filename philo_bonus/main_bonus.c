@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/04/01 12:57:57 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/27 20:45:41 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,15 @@
 int	ft_fill_all_data(t_lst *data)
 {
 	if (ft_create_semaphores(data) == 1)
-		return (1);
+		return (RETURN_FAILURE);
 	if (ft_allocate_memory(data) == 1)
 	{
 		ft_cleaning(data);
-		return (1);
+		return (RETURN_FAILURE);
 	}
 	ft_define_cycles_numb(data);
 	ft_initial_time(data);
-	return (0);
+	return (RETURN_SUCCESS);
 }
 
 void	ft_actions(t_lst *data)
@@ -38,9 +38,9 @@ void	ft_actions(t_lst *data)
 		if (data->must_eat != -1)
 			data->cycles--;
 		if (data->cycles == 0)
-			exit(EXIT_SUCCESS);
+			exit(PHILO_ATE_ENOUGH);
 	}
-	exit(EXIT_SUCCESS);
+	exit(PHILO_ATE_ENOUGH);
 }
 
 void	ft_wait_other_philos(t_lst *data)
@@ -79,7 +79,7 @@ int	ft_create_philos(t_lst *data)
 		}
 		data->children_pids[data->id++] = pid;
 	}
-	return (0);
+	return (RETURN_SUCCESS);
 }
 
 int	main(int argc, char **argv)
@@ -96,13 +96,13 @@ int	main(int argc, char **argv)
 	}
 	if (ft_fill_all_data(&data) == 1)
 	{
-		return (1);
+		return (EXIT_FAILURE);
 	}
 	if (ft_create_philos(&data) == 1)
 	{
-		return (1);
+		return (EXIT_FAILURE);
 	}
 	ft_wait_philos(&data);
 	ft_cleaning(&data);
-	return (0);
+	return (EXIT_SUCCESS);
 }

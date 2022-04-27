@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:08:48 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/31 13:43:26 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/27 20:47:35 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,24 +32,24 @@ static int	ft_check_characters(int ac, char **av)
 		while (av[j][i] != '\0')
 		{
 			if (ft_isdigit_orsign(av[j][i]) == 0)
-				return (1);
+				return (RETURN_FAILURE);
 			if (i == 0 && av[j][i + 1] == '\0' && \
 			(av[j][i] == '+' || av[j][i] == '-'))
-				return (1);
+				return (RETURN_FAILURE);
 			if (i == 0 && (av[j][i + 1] == '+' || av[j][i + 1] == '-') && \
 			(av[j][i] == '+' || av[j][i] == '-'))
-				return (1);
+				return (RETURN_FAILURE);
 			i++;
 		}
 		j++;
 	}
-	return (0);
+	return (RETURN_SUCCESS);
 }
 
 int	ft_parser(int ac, char **av, t_lst *data)
 {
 	if (ft_check_characters(ac, av) == 1)
-		return (1);
+		return (RETURN_FAILURE);
 	data->numb = ft_atoi(av[1]);
 	data->die_time = ft_atoi(av[2]);
 	data->eat_time = ft_atoi(av[3]);
@@ -58,14 +58,14 @@ int	ft_parser(int ac, char **av, t_lst *data)
 	{
 		data->must_eat = ft_atoi(av[5]);
 		if (data->must_eat < 0)
-			return (1);
+			return (RETURN_FAILURE);
 	}
 	else if (ac == 5)
 		data->must_eat = -1;
 	if (data->numb <= 0 || data->die_time < 0 || data->eat_time < 0 || \
 	data->sleep_time < 0)
-		return (1);
-	return (0);
+		return (RETURN_FAILURE);
+	return (RETURN_SUCCESS);
 }
 
 int	ft_create_semaphores(t_lst *data)
@@ -91,7 +91,7 @@ int	ft_create_semaphores(t_lst *data)
 		return (ft_putstr_ret("Error: sem_open failed\n", 2));
 	}
 	sem_unlink("general");
-	return (0);
+	return (RETURN_SUCCESS);
 }
 
 int	ft_allocate_memory(t_lst *data)
@@ -101,5 +101,5 @@ int	ft_allocate_memory(t_lst *data)
 	{
 		return (ft_putstr_ret("Error: malloc failed\n", 2));
 	}
-	return (0);
+	return (RETURN_SUCCESS);
 }

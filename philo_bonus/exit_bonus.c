@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/24 16:51:33 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/04/01 12:43:15 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/27 20:50:12 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	ft_wait_philos(t_lst *data)
 	while (n < data->numb)
 	{
 		wait(&status);
-		if (status == 768)
+		if (status == PHILO_DIED * 256)
 		{
 			ft_kill_all_philos(data);
 			return ;

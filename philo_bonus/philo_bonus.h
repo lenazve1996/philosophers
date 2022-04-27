@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/04/01 12:58:27 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/04/27 20:49:59 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,10 @@
 # define EAT 2
 # define SLEEP 3
 # define THINK 3
+# define PHILO_DIED 4
+# define PHILO_ATE_ENOUGH 0
+# define RETURN_FAILURE 1
+# define RETURN_SUCCESS 0
 
 typedef struct s_lst
 {
