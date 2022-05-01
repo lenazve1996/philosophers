@@ -6,36 +6,55 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:14:46 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/04/01 13:10:32 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/01 19:08:43 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	ft_initialize_mutexes(t_lst *data)
+int	create_mutex_array(pthread_mutex_t **mutex, int mutex_numb, t_lst *data)
+{
+	int	id;
+	
+	id = 0;
+	*mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * mutex_numb);
+	if (*mutex == NULL)
+		return (MUT_CREATE_ERROR);
+	while (id < mutex_numb)
+	{
+		if (pthread_mutex_init(&(*mutex)[id], NULL) != 0)
+		{
+			free_mut_array(data, id);
+			ft_putstr_ret("Error: Create mutex failed\n", 2);
+			return (MUT_CREATE_ERROR);
+		}
+		id++;
+	}
+	return (0);
+}
+
+int create_mutex(pthread_mutex_t **mutex)
+{
+	*mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	if (mutex == NULL)
+		return (MUT_CREATE_ERROR);
+	if (pthread_mutex_init(*mutex, NULL) != 0)
+	{
+		ft_putstr_ret("Error: Mutex init failed\n", 2);
+		return (MUT_CREATE_ERROR);
+	}
+	return (0);
+}
+
+static int	initialize_mutexes(t_lst *data)
 {
 	int	id;
 
 	id = 0;
-	data->mut = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * data->numb);
-	if (data->mut == NULL)
-		return (1);
-	data->message = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-	if (data->message == NULL)
-		return (1);
-	while (id < data->numb)
-	{
-		if (pthread_mutex_init(&data->mut[id], NULL) != 0)
-		{
-			free_mut_array(data, id);
-			return (ft_putstr_ret("Error: Mutex init failed\n", 2));
-		}
-		id++;
-	}
-	if (pthread_mutex_init(data->message, NULL) != 0)
-	{
-		return (ft_putstr_ret("Error: Mutex init failed\n", 2));
-	}
+	if (create_mutex_array(&data->mut, data->numb, data) == MUT_CREATE_ERROR)
+		return (MUT_CREATE_ERROR);
+	if (create_mutex(&data->message) == MUT_CREATE_ERROR)
+		return (MUT_CREATE_ERROR);
 	return (0);
 }
 
@@ -54,14 +73,14 @@ static int	ft_creation(t_lst *data)
 {
 	data->philos = (pthread_t *)malloc(sizeof(pthread_t) * data->numb);
 	if (data->philos == NULL)
-		return (1);
-	data->ph = (t_ph *)malloc(sizeof(t_ph) * data->numb);
-	if (data->ph == NULL)
-		return (1);
-	if (ft_initialize_mutexes(data) == 1)
-		return (1);
+		return (MALLOC_ERROR);
+	data->philo_specs = (t_ph *)malloc(sizeof(t_ph) * data->numb);
+	if (data->philo_specs == NULL)
+		return (MALLOC_ERROR);
+	if (initialize_mutexes(data) == MUT_CREATE_ERROR)
+		return (MUT_CREATE_ERROR);
 	ft_initial_time(data);
-	ft_data_for_philo(data);
+	set_philo_specs(data);
 	if (ft_create_threads(data) == 1)
 		return (1);
 	ft_monitoring(data);
@@ -78,7 +97,7 @@ int	main(int argc, char **argv)
 	{
 		return (ft_putstr_ret("Error\n", 2));
 	}
-	if (ft_parser(argc, argv, &data) == 1)
+	if (parser(argc, argv, &data) == PARSER_ERROR)
 	{
 		return (ft_putstr_ret("Error\n", 2));
 	}

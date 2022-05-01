@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:11:18 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/04/01 12:11:35 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/01 19:01:32 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	ft_monitoring(void *main_data)
 			pthread_mutex_unlock(data->message);
 			if (ft_check_meals_numb(data) == 1)
 				return ;
-			if (ft_check_death(data, data->ph[i]) == 1)
+			if (ft_check_death(data, data->philo_specs[i]) == 1)
 				return ;
 			i++;
 		}

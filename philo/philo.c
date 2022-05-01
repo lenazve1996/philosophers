@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/04/01 13:16:24 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/01 19:04:14 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	ft_run_threads(int id, t_lst *data)
 
 	while (id < data->numb)
 	{
-		r = pthread_create(&data->philos[id], NULL, &ft_actions, &data->ph[id]);
+		r = pthread_create(&data->philos[id], NULL, &ft_actions, &data->philo_specs[id]);
 		if (r != 0)
 		{
 			ft_putstr_ret("pthread_create failed\n", 2);
@@ -78,12 +78,12 @@ int	ft_run_threads(int id, t_lst *data)
 static void	ft_detect_rigth_fork(t_lst *data, int id)
 {
 	if (id + 1 != data->numb)
-		data->ph[id].right_fork = &data->mut[id + 1];
+		data->philo_specs[id].right_fork = &data->mut[id + 1];
 	else if (id + 1 == data->numb)
-		data->ph[id].right_fork = &data->mut[0];
+		data->philo_specs[id].right_fork = &data->mut[0];
 }
 
-void	ft_data_for_philo(t_lst *data)
+void	set_philo_specs(t_lst *data)
 {
 	int	id;
 
@@ -91,11 +91,11 @@ void	ft_data_for_philo(t_lst *data)
 	ft_define_cycles_numb(data);
 	while (id < data->numb)
 	{
-		data->ph[id].id = id;
-		data->ph[id].last_dinner = data->zero_time;
-		data->ph[id].main_data = data;
-		data->ph[id].cycles = data->cycles;
-		data->ph[id].left_fork = &data->mut[id];
+		data->philo_specs[id].id = id;
+		data->philo_specs[id].last_dinner = data->zero_time;
+		data->philo_specs[id].main_data = data;
+		data->philo_specs[id].cycles = data->cycles;
+		data->philo_specs[id].left_fork = &data->mut[id];
 		ft_detect_rigth_fork(data, id);
 		id++;
 	}

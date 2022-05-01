@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:04:00 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/03/26 18:51:36 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/01 19:00:25 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ int	ft_clearing(t_lst *data, int error_flag)
 {
 	if (data->philos != NULL)
 		free(data->philos);
-	if (data->ph != NULL)
-		free(data->ph);
+	if (data->philo_specs != NULL)
+		free(data->philo_specs);
 	free_mut_array(data, data->numb);
 	pthread_mutex_destroy(data->message);
 	if (data->message != NULL)
