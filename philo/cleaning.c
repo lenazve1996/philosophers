@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:04:00 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/05/01 19:00:25 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/02 18:50:16 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ void	free_mut_array(t_lst *data, int free_numb)
 	{
 		while (free_numb != 0)
 			pthread_mutex_destroy(&data->mut[--free_numb]);
+		free(data->mut);
+		data->mut = NULL;
 	}
-	free(data->mut);
-	data->mut = NULL;
 }
 
 int	ft_clearing(t_lst *data, int error_flag)

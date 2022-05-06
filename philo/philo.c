@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/19 17:24:14 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/05/01 19:04:14 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/02 18:46:04 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,7 @@ int	ft_run_threads(int id, t_lst *data)
 		r = pthread_create(&data->philos[id], NULL, &ft_actions, &data->philo_specs[id]);
 		if (r != 0)
 		{
-			ft_putstr_ret("pthread_create failed\n", 2);
-			return (1);
+			return (ft_putstr_ret("pthread_create failed\n", 2, THREAD_ERROR));
 		}
 		id = id + 2;
 	}

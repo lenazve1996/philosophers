@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:11:18 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/05/01 19:01:32 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/02 18:41:21 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int	ft_wait_threads(t_lst *data)
 	{
 		if (pthread_join(data->philos[id], NULL) != 0)
 		{
-			return (ft_putstr_ret("Error: pthread_join failed\n", 2));
+			return (ft_putstr_ret("Error: pthread_join failed\n", 2, 1));
 		}
 		id++;
 	}

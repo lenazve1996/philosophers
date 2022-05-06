@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 19:08:48 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/05/01 18:59:58 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/02 18:48:44 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,17 +67,33 @@ int	arguments_not_valid(t_lst *data)
 	return (0);
 }
 
-int	parser(int ac, char **av, t_lst *data)
+void	read_program_arguments(char **av, t_lst *data)
 {
-	if (characters_not_valid(ac, av))
-		return (PARSER_ERROR);
 	data->numb = ft_atoi(av[1]);
 	data->die_time = ft_atoi(av[2]);
 	data->eat_time = ft_atoi(av[3]);
 	data->sleep_time = ft_atoi(av[4]);
-	if (define_meals_number(ac, av, data) == 1)
+}
+
+int	arguments_number_not_valid(int argc)
+{
+	if (argc != 5 && argc != 6)
+	{
+		return (ft_putstr_ret("Error\n", 2, PARSER_ERROR));
+	}
+	return (0);
+}
+
+int	parser(int ac, char **av, t_lst *data)
+{
+	if (arguments_number_not_valid(ac))
 		return (PARSER_ERROR);
+	if (characters_not_valid(ac, av))
+		return (PARSER_ERROR);
+	read_program_arguments(av, data);
 	if (arguments_not_valid(data))
+		return (PARSER_ERROR);
+	if (define_meals_number(ac, av, data) == PARSER_ERROR)
 		return (PARSER_ERROR);
 	return (0);
 }

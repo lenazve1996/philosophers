@@ -6,7 +6,7 @@
 /*   By: ayajirob@student.42.fr <ayajirob>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/18 18:56:40 by ayajirob@st       #+#    #+#             */
-/*   Updated: 2022/05/01 19:03:32 by ayajirob@st      ###   ########.fr       */
+/*   Updated: 2022/05/02 18:45:25 by ayajirob@st      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@
 
 # define PARSER_ERROR 5
 # define MALLOC_ERROR 6
-# define MUT_CREATE_ERROR 7
+# define MUTEX_ERROR 7
+# define THREAD_ERROR 8
 # define TAKE_FORK 1
 # define EAT 2
 # define SLEEP 3
